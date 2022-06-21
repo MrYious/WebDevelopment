@@ -1,0 +1,283 @@
+body{
+    margin: 0px;
+    display: flex;
+    justify-content: center;
+}
+
+#mainContainer {
+    width: 800px;
+    margin: 50px 0px;
+}
+
+/* General */
+
+label {
+    padding: 5px;
+    font-weight: 600;
+}
+
+button {
+    transition-duration: 0.4s;
+    padding: 7px 15px;
+    font-size: 15px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border: 1px solid #555555;
+    border-radius: 10px;
+    color: black;
+}
+
+select {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+button:hover {
+    background-color: #555555;
+    color: white;
+}
+
+input[type=text], input[type=number], input[type=email],input[type=tel] {
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+
+input[type="submit"], input[type="reset"], input[type="button"] {
+    padding: 5px 10px;
+    margin: 0px 10px;
+    width: 100px;
+    cursor: pointer;
+    font-size: 15px;
+    transition-duration: 0.4s;
+    border: 1px solid #555555;
+    color: black;
+}
+
+input[type="submit"]:hover, input[type="reset"]:hover, input[type="button"]:hover {
+    background-color: #555555;
+    color: white;
+}
+
+table {
+    text-align: center;
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid black;
+    margin-bottom: 20px;
+}
+
+table th {
+    background-color: #C3CDDB;
+    color: black;
+    padding: 10px;
+    margin-bottom:  10px;
+    border: 1px solid black;
+}
+
+table td {
+    padding: 5px;
+}
+
+table td input {
+    width: 100%;
+}
+
+table tr:nth-child(odd) {
+    background-color: #e6e6e6;
+}
+
+/* HEADER */
+
+header {
+    display: flex;
+	justify-content: space-between;
+	align-items: center;
+    background-color: #C3CDDB;
+    padding: 20px 40px 20px;
+    border-radius: 25px 25px 0px 0px;
+    border: black solid 1px;
+}
+
+header h3 {
+    margin: 0;
+}
+
+/* SECTIONS */
+
+section {
+    display: flex;
+    flex-direction: column;
+}
+
+section div h3 {
+    margin: 0px;
+}
+
+section .title {
+    display: flex;
+	justify-content: space-between;
+	align-items: center;
+    background-color: #C3CDDB;
+    border: 1px solid black;
+    padding: 10px 40px 10px;
+}
+
+/* S - ORDER DETAILS */
+
+#orderDetails {
+    display: flex;
+    height: 70px;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    padding: 10px 40px 10px;
+    border: 1px solid black;
+}
+
+/* S - Customer Information */
+
+section #customer {
+    height: 350px;
+    display: flex;
+    border: 1px solid black;
+    padding: 0px;
+}
+
+section #customer div {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+section #customer #label_div {
+    width: 150px;
+    align-items: flex-end;
+}
+
+section #customer #label_div label {
+    padding: 5px 0px 5px;
+}
+
+section #customer #input_div {
+    width: 550px;
+    align-items: flex-start;
+}
+
+section #customer #input_div select {
+    width: 220px;
+}
+
+/* S - Ordered Product List */
+
+section #order {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    border: 1px solid black;
+    border-radius: 0px 0px 25px 25px;
+    padding: 20px;
+}
+
+section #order table #unit      {width: 7%;}
+section #order table #qty       {width: 7%;}
+section #order table #code      {width: 7%;}
+section #order table #name      {width: 30%;}
+section #order table #price     {width: 10%;}
+section #order table #t_price   {width: 10%;}
+
+section #order #total {
+    display: flex;
+	justify-content: flex-end;
+	align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+section #order #total label {
+    font-weight: 600;
+    padding-right: 20px;
+}
+
+section #order #actions {
+    display: flex;
+	justify-content: center;
+	align-items: center;
+    width: 100%;
+}
+
+/* MODAL STYLES */
+
+.modal {
+    display: none;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 100px;
+    position: fixed;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+}
+
+#orderList {
+    width: 70%;
+}
+
+.modal-container .title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 20px;
+}
+
+.close {
+    display: flex;
+    justify-content: flex-end;
+    color: #aaa;
+    font-weight: bold;
+    margin: 0px;
+    padding: 0px;
+}
+
+.close:hover, .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-container .modal-content {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0px 0px;
+}
+
+.content-body table #id             {width: 5%;}
+.content-body table #customerName   {width: 10%;}
+.content-body table #orders         {width: 15%;}
+.content-body table #totalAmount    {width: 10%;}
+.content-body table #status         {width: 5%;}
+.content-body table #date           {width: 5%;}
+
+.modal-container .modal-content .content-body {
+    padding: 20px 0px;
+}
+
+.modal-container .modal-content .content-action {
+    display: flex;
+    justify-content: flex-end;
+}
