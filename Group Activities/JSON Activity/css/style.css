@@ -1,0 +1,122 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #025b78;
+}
+
+/* LOGIN PHP */
+
+#mainContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    padding: 20px;
+    background-color: #ccd6d9;
+    border: 2px solid #ccd6d9;
+    border-radius: 20px;
+}
+
+#mainContainer form {
+    width: 90%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+#mainContainer form h2 {
+    margin: 0;
+    color: black;
+}
+
+#mainContainer form #inputs {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 20px 0px;
+}
+
+#mainContainer form #inputs input {
+    font-size: 16px;
+    width: 100%;
+    padding: 12px;
+    margin: 5px 0px;
+    box-sizing: border-box;
+    border: 0px;
+    border-radius: 20px;
+    color: black;
+}
+
+#mainContainer form #submit {
+    background-color: white;
+    color: black;
+    border: 3px solid #008CBA;
+    cursor: pointer;
+    width: 100%;
+    padding: 10px;
+    font-size: 20px;
+    border-radius: 25px;
+}
+
+#mainContainer form #submit:hover {
+    background-color: #008CBA;
+    color: white;
+}
+
+/* INDEX PHP */
+
+#tableContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 400px;
+    padding: 20px;
+    background-color: #ccd6d9;
+    border: 2px solid #ccd6d9;
+    border-radius: 20px;
+}
+
+#tableContainer h2{
+    margin: 30px 0px;
+}
+
+#tableContainer div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+}
+
+/* TABLE */
+
+table {
+    text-align: center;
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid black;
+    margin-bottom: 20px;
+}
+
+table th {
+    background-color: #C3CDDB;
+    color: black;
+    padding: 10px;
+    margin-bottom:  10px;
+    border: 1px solid black;
+}
+
+table td {
+    padding: 5px;
+}
+
+table tr:nth-child(even) {
+    background-color: #e6e6e6;
+}
