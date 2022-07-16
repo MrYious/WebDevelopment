@@ -13,7 +13,7 @@ const Landing = () => {
     const [isValidRoom, setIsValidRoom] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
 
-    const [isStarted, setIsStarted] = useState(true);
+    const [isStarted, setIsStarted] = useState(false);
 
     const [validateCode, setValidateCode] = useState(true);
     const [validateNickname, setValidateNickname] = useState(false);
@@ -51,7 +51,7 @@ const Landing = () => {
     }
 
     return (<>
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-400">
+        <div className="flex flex-col items-center justify-center h-screen bg-gray-300">
             {/* NAVBAR */}
             <div className="flex items-center justify-end w-full px-3 py-2">
                 <Link to={'home'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-gray-700 rounded-full w-fit">
@@ -64,7 +64,7 @@ const Landing = () => {
                 <div className="text-6xl font-bold text-gray-700">SmartQ</div>
                 {   isValidRoom === false ?
                         // Room Code
-                        <div className='flex flex-col gap-3 p-4 text-center bg-gray-300 rounded-lg w-96'>
+                        <div className='flex flex-col gap-3 p-4 text-center bg-gray-200 rounded-lg w-96'>
                             { !validateCode ? <div> {message} </div>: <></> }
                             <input className='py-2 text-xl text-center border-2 border-gray-700 rounded-lg' maxLength={7} type={"text"} placeholder={"Room Code"} value={roomCode} onChange={e => setRoomCode(e.target.value)}/>
                             <button className='w-full py-2 text-xl font-bold text-gray-200 bg-orange-700 rounded-lg' onClick={handleClickEnter}>
@@ -74,7 +74,7 @@ const Landing = () => {
                     :
                         (isRegistered === false ?
                             // Username
-                            <div className='flex flex-col gap-3 p-4 bg-gray-300 rounded-lg w-96'>
+                            <div className='flex flex-col gap-3 p-4 bg-gray-200 rounded-lg w-96'>
                                 { !validateNickname ? <div> {message} </div>: <></> }
                                 <input className='py-2 text-xl text-center border-2 border-gray-700 rounded-lg' maxLength={15} type={"text"} placeholder={"Nickname"} value={nickname} onChange={e => setNickname(e.target.value)}/>
                                 <button className='w-full py-2 text-xl font-bold text-gray-200 bg-orange-700 rounded-lg' onClick={handleClickJoin}>
@@ -83,7 +83,7 @@ const Landing = () => {
                             </div>
                         :
                             // Confirm
-                            <div className='flex flex-col gap-3 p-4 bg-gray-300 rounded-lg w-96'>
+                            <div className='flex flex-col gap-3 p-4 bg-gray-200 rounded-lg w-96'>
                                 <div className='py-2 text-xl' >
                                    { isStarted
                                         ? <>The party started!</>

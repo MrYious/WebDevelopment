@@ -2,6 +2,9 @@ import './App.css';
 
 import { Route, Routes } from "react-router-dom";
 
+import About from './pages/About';
+import Features from './pages/Features';
+import Hero from './pages/Hero';
 import Home from './pages/Home';
 import Landing from './pages/Landing';
 import SignIn from './components/SignIn';
@@ -11,14 +14,16 @@ import User from './pages/User';
 function App() {
   return (
     <Routes>
+
       <Route path="/" element={<Landing/>} />
+
       <Route path="/home" element={<Home />}>
-        {/* Hero */}
-        <Route index element={<>Hero Banner</>} />
-        {/* Account Login and Creation */}
+        <Route index element={<Hero/>} />
+        <Route path="features" element={<Features/>} />
+        <Route path="about" element={<About/>} />
         <Route path="user" element={<User/>} >
           <Route index element={<SignIn/>} />
-          <Route path="signup" element={<SignUp/>} />
+          <Route path="new" element={<SignUp/>} />
         </Route>
       </Route>
 
