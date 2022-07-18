@@ -19,6 +19,8 @@ const SignIn = () => {
     }
 
     const handleSubmit = (e) => {
+        console.log(email);
+        console.log(password);
         axios.post('http://localhost:5001/api/login', {
             email,
             password,
@@ -29,6 +31,17 @@ const SignIn = () => {
             console.log(response.data.msg);
             alert("SUCCESS");
             // WHAT TO DO NEXT?????
+            axios.get('http://localhost:5001/api/isAuth')
+            .then(function (response) {
+                // SUCCESS
+                console.log(response.data.msg);
+                alert("Reload");
+            })
+            .catch(function (error) {
+                // FAIL
+                alert("Error");
+                console.log(error.response);
+            });
           })
           .catch(function (error) {
             // FAIL
@@ -36,7 +49,9 @@ const SignIn = () => {
             setErrorMessage(error.response.data.msg);
             setIsValidationError(true);
         });
+
         e.preventDefault();
+
     }
 
     return (<>
