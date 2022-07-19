@@ -1,10 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 import { UserCircleIcon } from "@heroicons/react/outline";
 import axios from "axios";
 import { useState } from "react";
 
 const SignIn = () => {
 
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -19,9 +21,7 @@ const SignIn = () => {
     }
 
     const handleSubmit = (e) => {
-        console.log(email);
-        console.log(password);
-        axios.post('http://localhost:5001/api/login', {
+        axios.post('http://localhost:5000/user/login', {
             email,
             password,
           })
@@ -30,18 +30,6 @@ const SignIn = () => {
             reset();
             console.log(response.data.msg);
             alert("SUCCESS");
-            // WHAT TO DO NEXT?????
-            axios.get('http://localhost:5001/api/isAuth')
-            .then(function (response) {
-                // SUCCESS
-                console.log(response.data.msg);
-                alert("Reload");
-            })
-            .catch(function (error) {
-                // FAIL
-                alert("Error");
-                console.log(error.response);
-            });
           })
           .catch(function (error) {
             // FAIL
