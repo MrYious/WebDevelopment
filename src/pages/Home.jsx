@@ -1,6 +1,7 @@
 import { Link, Outlet } from "react-router-dom";
+import { useContext, useEffect } from "react";
 
-import logo from '../assets/SmartQ.png';
+import { UserContext } from "../context/UserContext";
 
 const links = [
   { name: 'Home', to: '/home' },
@@ -8,30 +9,39 @@ const links = [
   { name: 'About', to: 'about' },
 ]
 
-
 const Home = () => {
+
+  const contextData = useContext(UserContext);
+  console.log("Render Home", contextData);
+
+  useEffect(() => {
+    console.log("Home Effect:");
+    contextData.toggleCheckLogin();
+}, [])
+
   return (<>
-    <div className='flex flex-col h-screen bg-gray-300'>
+    <div className='flex flex-col items-center justify-center h-screen bg-gray-300'>
       {/* NAVBAR */}
-      <div className="flex w-full h-16 px-8 border-black ">
+      <div className="flex items-center justify-between w-full px-3 py-2">
         {/* ICON */}
-        <div className="flex items-center w-1/6 font-bold">
-          <img src={logo} alt="SmartQ Logo" className="h-12"/>
-        </div>
+        <Link to={'/'} className="flex items-center w-1/6 text-4xl font-bold">
+          SmartQ
+        </Link>
         {/* LINKS */}
-        <div className="flex items-center justify-end w-5/6 h-full gap-4 text-gray-800">
-          {/* SCROLL */}
+        <div className="flex items-center justify-end w-5/6 h-full gap-5 text-gray-800">
           {links.map((link, i) => {
-            return <Link to={link.to} key={i}>
-              <button className="px-3 py-2 font-bold rounded-3xl">{link.name}</button>
+            return <Link to={link.to} key={i} className="flex items-center gap-1 px-2 py-2 text-lg font-medium text-gray-900 rounded-full w-fit">
+              {link.name}
             </Link>
           })}
-          {/* ACCOUNT */}
-          <Link to='user/'>
-            <button className="px-4 py-2 font-bold text-black bg-orange-600 rounded-3xl">
-              Sign In
-            </button>
-          </Link>
+          {contextData.isLoggedIn
+            ? <Link to={'/host'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-orange-700 rounded-full w-fit">
+                {contextData.user.nickname}
+              </Link>
+            : <Link to={'user/'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-orange-700 rounded-full w-fit">
+                Sign In
+              </Link>
+          }
         </div>
       </div>
       {/* CONTENT */}

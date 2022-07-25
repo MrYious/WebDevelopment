@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 
+import Axios from "../service/Axios"
 import { UserCircleIcon } from "@heroicons/react/outline";
-import axios from "axios";
 import { useState } from "react";
 
 const SignIn = () => {
@@ -21,7 +21,7 @@ const SignIn = () => {
     }
 
     const handleSubmit = (e) => {
-        axios.post('http://localhost:5000/user/login', {
+        Axios.post('http://localhost:5000/user/login', {
             email,
             password,
           })
@@ -29,12 +29,15 @@ const SignIn = () => {
             // SUCCESS
             reset();
             console.log(response.data.msg);
-            alert("SUCCESS");
+            navigate("/host")
           })
           .catch(function (error) {
             // FAIL
-            console.log(error.response.data.msg);
-            setErrorMessage(error.response.data.msg);
+            if(error.response.data){
+                setErrorMessage(error.response.data.msg);
+            }else{
+                setErrorMessage("Can't reach server");
+            }
             setIsValidationError(true);
         });
 
@@ -58,8 +61,8 @@ const SignIn = () => {
                     </div>
                 }
                 <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center w-full gap-3">
-                    <input className="w-full px-2 py-1 border-2 border-gray-400 border-solid rounded-sm bg-slate-100" value={email} onChange={(e)=> {setEmail(e.target.value)}} type={"email"} size="70" placeholder="Email" required/>
-                    <input className="w-full px-2 py-1 border-2 border-gray-400 border-solid rounded-sm bg-slate-100" value={password} onChange={(e)=> {setPassword(e.target.value)}} type={"password"} size="15" placeholder="Password" required/>
+                    <input className="w-full px-2 py-1 border-2 border-gray-400 border-solid rounded-sm bg-slate-100" maxLength="50" value={email} onChange={(e)=> {setEmail(e.target.value)}} type={"email"} placeholder="Email" autoComplete="email" required/>
+                    <input className="w-full px-2 py-1 border-2 border-gray-400 border-solid rounded-sm bg-slate-100" maxLength="15" value={password} onChange={(e)=> {setPassword(e.target.value)}} type={"password"} placeholder="Password" autoComplete="current-password"  required/>
                     <button type="submit" className="w-full py-2 font-bold tracking-wide text-gray-300 bg-orange-600 rounded-sm">
                         Sign In
                     </button>
