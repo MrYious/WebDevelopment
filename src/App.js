@@ -89,11 +89,11 @@ const App = () => {
         {/* DASHBOARD (LOGGED IN) */}
         <Route path="host" element={<Host/>} >
           <Route index element={<QuizList/>} />
-          <Route path="manage" element={<QuizManage/>} >
+          {/* <Route path="manage" element={<QuizManage/>} >
             <Route index element={<>Information</>} />
             <Route path="create" element={<>Create quiz</>} />
             <Route path="edit" element={<>Edit quiz</>} />
-          </Route>
+          </Route> */}
         </Route>
 
         <Route path="*" element={<Error404/>} />

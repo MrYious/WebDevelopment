@@ -17,7 +17,7 @@ const Home = () => {
   useEffect(() => {
     console.log("Home Effect:");
     contextData.toggleCheckLogin();
-}, [])
+  }, [])
 
   return (<>
     <div className='flex flex-col items-center justify-center h-screen bg-gray-300'>

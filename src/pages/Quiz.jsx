@@ -1,7 +1,8 @@
 import { BackspaceIcon, HomeIcon } from '@heroicons/react/solid'
-import { Link, Navigate, Outlet, useParams } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
+import { useContext, useEffect, useState } from "react";
 
-import { useState } from 'react';
+import { UserContext } from "../context/UserContext";
 
 const Quiz = () => {
     // Quiz room states = Created and Saved, Running and Waiting, Started, Ended
@@ -21,16 +22,24 @@ const Quiz = () => {
         // setIsValidRoom = false, show that the room is invalid or expired
         // GO BACK
 
+    const contextData = useContext(UserContext);
+    console.log("Render Quiz", contextData);
     let { roomID } = useParams();
 
+    const navigate = useNavigate();
     const [message, setMessage] = useState('');
-
-    const [nickname, setNickname] = useState('MrYious');//
+    const [nickname, setNickname] = useState(contextData.user.nickname ? contextData.user.nickname: "" );   //
     const [tempName, setTempName] = useState('');
 
-    const [isJoined, setIsJoined] = useState(true);//
-    const [isValidRoom, setIsValidRoom] = useState(true);//
-    const [isStarted, setIsStarted] = useState(true);//
+    const [isJoined, setIsJoined] = useState(false);        //
+    const [isValidRoom, setIsValidRoom] = useState(true);   //
+    const [isStarted, setIsStarted] = useState(false);      //
+    const [isChangeNickname, setIsChangeNickname] = useState(false);        //
+
+    useEffect(() => {
+        console.log("Quiz Effect:")
+        // contextData.toggleCheckLogin()
+    }, [])
 
     const allowedChars = (str) => {
         return /^[A-Za-z0-9_ ]*$/.test(str);
@@ -45,16 +54,23 @@ const Quiz = () => {
             setMessage("Sorry 🥺 but we only allow letters, numbers, spaces, and underscores")
         }else{
             setNickname(tempName);
+            setIsChangeNickname(false)
         }
     };
 
-    const handleGoBack = () => {
-        setNickname('');
+    const handleChangeNickname = () => {
+        setIsChangeNickname(true)
+        setTempName(nickname)
+    }
+
+    const handleStart = () => {
+        setIsJoined(true)
+        navigate(nickname)
     }
 
     return(<>
         { isJoined
-        ?   <><Outlet/><Navigate to={nickname}/></>
+        ?   <><Outlet/></>
         :   <div className='flex flex-col items-center justify-center h-screen bg-gray-300'>
                 {
                     isValidRoom
@@ -83,9 +99,8 @@ const Quiz = () => {
                             <div className="flex flex-col items-center justify-center w-full h-full gap-10 text-center">
                                 <div className="text-6xl font-bold text-gray-700">SmartQ</div>
                                 {(
-                                        !nickname
-                                    ?
-                                        // Nickname
+                                        (isChangeNickname || nickname.length === 0)
+                                    ?   // Nickname
                                         <div className='flex flex-col gap-3 p-4 bg-gray-200 rounded-lg w-96'>
                                             { message && <div> {message} </div> }
                                             <input className='py-2 text-xl text-center border-2 border-gray-700 rounded-lg' maxLength={15} type={"text"} placeholder={"Nickname"} value={tempName} onChange={e => setTempName(e.target.value)}/>
@@ -93,8 +108,7 @@ const Quiz = () => {
                                                 JOIN
                                             </button>
                                         </div>
-                                    :
-                                        // Preparation Room
+                                    :   // Preparation Room
                                         <div className='flex flex-col gap-3 p-4 bg-gray-200 rounded-lg w-96'>
                                             <div className='py-2 text-xl' >
                                             { isStarted
@@ -108,10 +122,10 @@ const Quiz = () => {
                                                     : <>Ready to join the party, <b>{nickname}</b>?</>
                                                 }
                                             </div>
-                                            <button className='w-full py-2 text-xl font-bold text-gray-200 bg-gray-600 rounded-lg' onClick={handleGoBack}>
+                                            <button className='w-full py-2 text-xl font-bold text-gray-200 bg-gray-600 rounded-lg' onClick={handleChangeNickname}>
                                                 CHANGE NICKNAME
                                             </button>
-                                            <Link to={nickname} onClick={() => {setIsJoined(true)}} className='w-full py-2 text-xl font-bold text-gray-200 bg-orange-700 rounded-lg'>
+                                            <Link to={nickname} onClick={handleStart} className='w-full py-2 text-xl font-bold text-gray-200 bg-orange-700 rounded-lg'>
                                                 LET'S GO
                                             </Link>
                                         </div>
