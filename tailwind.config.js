@@ -9,6 +9,9 @@ module.exports = {
         sans: ['Inter var', 'sans-serif'],
         serif: ['Merriweather', 'serif'],
       },
+      backgroundImage: {
+        'box': "url('../src/assets/Box.png')",
+      }
     },
   },
   plugins: [],

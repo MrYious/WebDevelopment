@@ -20,7 +20,7 @@ const Home = () => {
   }, [])
 
   return (<>
-    <div className='flex flex-col items-center justify-center h-screen bg-gray-300'>
+    <div className='flex flex-col items-center justify-center h-screen text-white bg-gray-300 bg-gradient-to-r from-emerald-800 to-green-800'>
       {/* NAVBAR */}
       <div className="flex items-center justify-between w-full px-3 py-2">
         {/* ICON */}
@@ -28,24 +28,24 @@ const Home = () => {
           SmartQ
         </Link>
         {/* LINKS */}
-        <div className="flex items-center justify-end w-5/6 h-full gap-5 text-gray-800">
+        <div className="flex items-center justify-end w-5/6 h-full gap-5 text-white">
           {links.map((link, i) => {
-            return <Link to={link.to} key={i} className="flex items-center gap-1 px-2 py-2 text-lg font-medium text-gray-900 rounded-full w-fit">
+            return <Link to={link.to} key={i} className="flex items-center gap-1 px-2 py-2 text-lg font-medium rounded-full w-fit">
               {link.name}
             </Link>
           })}
           {contextData.isLoggedIn
-            ? <Link to={'/host'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-orange-700 rounded-full w-fit">
+            ? <Link to={'/host'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-100 bg-gray-900 rounded-full w-fit">
                 {contextData.user.nickname}
               </Link>
-            : <Link to={'user/'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-orange-700 rounded-full w-fit">
+            : <Link to={'user/'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-100 bg-gray-900 rounded-full w-fit">
                 Sign In
               </Link>
           }
         </div>
       </div>
       {/* CONTENT */}
-      <div className="flex items-center justify-center w-full h-full">
+      <div className="flex items-center justify-center w-full h-full bg-gradient-to-r from-[#628F83] to-[#004643]">
         <Outlet/>
       </div>
     </div>

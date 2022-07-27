@@ -56,7 +56,7 @@ const SignUp = () => {
     }
 
     return (<>
-        <div className="flex flex-col items-center justify-center w-full h-full gap-3 px-16 py-6 bg-gray-300">
+        <div className="flex flex-col items-center justify-center w-full h-full gap-3 px-16 py-6 bg-gray-300 rounded-3xl">
             <div className="flex flex-col items-center justify-center">
                 <UserCircleIcon className="w-20 my-2 text-orange-600"/>
                 <div className="text-3xl ">

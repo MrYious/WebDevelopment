@@ -1,32 +1,29 @@
+import { PlusCircleIcon, RefreshIcon } from "@heroicons/react/outline";
 import { useContext, useEffect, useState } from "react";
 
 import Axios from "../service/Axios"
-import { PlusCircleIcon } from "@heroicons/react/outline";
 import { PlusIcon } from "@heroicons/react/solid";
 import { UserContext } from "../context/UserContext";
+import { customAlphabet } from 'nanoid'
 import nextId from "react-id-generator";
-import { useOutletContext } from "react-router-dom";
+
+// TODO QUESTION SAVED CARD IF ELSE
+
 
 const QuizList = () => {
     const contextData = useContext(UserContext);
+    console.log("render");
 
-    const [message, setMessage] = useOutletContext();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [choices, setChoices] = useState({
-      A: "",
-      B: "",
-      C: "",
-      D: "",
-    })
 
     const [showNewQuizModal, setShowNewQuizModal] = useState(false);
     const [showQuizInfoModal, setShowQuizInfoModal] = useState(false);
     const [showQuestionModal, setShowQuestionModal] = useState(false);
+    const [showResults, setShowResults] = useState(false);
 
     const [selectedQuiz, setSelectedQuiz] = useState({});
     const [selectedQuestion, setSelectedQuestion] = useState({});
-
 
     const QUESTION_TYPES = [
       "True or False",
@@ -51,17 +48,14 @@ const QuizList = () => {
         })
         .then(function (response) {
           // SUCCESS
-          let data = response.data;
           setTitle("");
           setDescription("");
-          showNewQuizModal(false);
-          setMessage(data.msg);
+          setShowNewQuizModal(false);
           contextData.toggleCheckLogin();
         })
         .catch(function (error) {
           // FAIL
-          console.log("Cant save data")
-          setMessage(error.msg);
+          console.log("Cant save data", error)
         });
     };
 
@@ -75,18 +69,98 @@ const QuizList = () => {
       setShowQuizInfoModal(true);
     }
 
+    const handleStartQuiz = () => {
+      const nanoid = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ', 7)
+      const genCode = nanoid()
+      Axios.put('http://localhost:5000/quiz/', {
+        selectedQuiz: {...selectedQuiz, state: "Running", code: genCode},
+      })
+      .then(function (response) {
+        // SUCCESS
+        console.log(response.data.msg);
+        setSelectedQuiz({...selectedQuiz, state: "Running", code: genCode})
+        contextData.toggleCheckLogin();
+      })
+      .catch(function (error) {
+        // FAIL
+        console.log(error.response.data.msg);
+      });
+    }
+
+    const handleStopQuiz = () => {
+      Axios.put('http://localhost:5000/quiz/', {
+        selectedQuiz: {...selectedQuiz, state: "Completed"},
+      })
+      .then(function (response) {
+        // SUCCESS
+        console.log(response.data.msg);
+        setSelectedQuiz({...selectedQuiz, state: "Completed"})
+        contextData.toggleCheckLogin();
+      })
+      .catch(function (error) {
+        // FAIL
+        console.log(error.response.data.msg);
+      });
+    }
+
+    const handleDeleteQuiz = () =>{
+      console.log(selectedQuiz._id)
+      Axios.post('http://localhost:5000/quiz/delete', {
+        id: selectedQuiz._id
+      })
+      .then(function (response) {
+        // SUCCESS
+        console.log(response.data.msg);
+        contextData.toggleCheckLogin();
+        setShowQuizInfoModal(false);
+      })
+      .catch(function (error) {
+        // FAIL
+        console.log(error.response.data.msg);
+      });
+    }
+
+    const handleShowQuizInfoControls = () => {
+      switch (selectedQuiz.state) {
+        case "Empty":
+          return <>
+            <button onClick={()=>{}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-gray-500 rounded-full shadow-sm shadow-black w-fit">
+              Start
+            </button>
+          </>
+        case "Ready":
+          return <>
+            <button onClick={handleStartQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-green-700 rounded-full shadow-sm shadow-black w-fit">
+              Start
+            </button>
+          </>
+        case "Running":
+          return <>
+            <button onClick={handleStopQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-red-500 rounded-full shadow-sm shadow-black w-fit">
+              Stop
+            </button>
+          </>
+        case "Completed":
+          return <>
+            <button onClick={()=>{setShowResults(true)}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-green-700 rounded-full shadow-sm shadow-black w-fit">
+              Results
+            </button>
+          </>
+        default:
+          break;
+      }
+    }
+
     const handleCreateNewQuestion = () => {
-      setSelectedQuiz({...selectedQuiz, questions: [
+      setSelectedQuiz((prev) => {return{...prev, totalPoints: prev.totalPoints + 1, questions: [
         ...selectedQuiz.questions, {
           id: nextId(),
-          type: "True or False",
+          format: "True or False",
           text: "",
-          options: {
-            A: "",
-            B: "",
-            C: "",
-            D: "",
-          },
+          A: "",
+          B: "",
+          C: "",
+          D: "",
           answer: [],
           points: 1,
           timeLimit: {
@@ -94,7 +168,7 @@ const QuizList = () => {
             duration: 60,
           }
         }
-      ]});
+      ]}});
     }
 
     const handleManageQuestion = (idx) => {
@@ -109,35 +183,39 @@ const QuizList = () => {
 
     const handleShowOptions = () => {
       let component
-      switch(selectedQuestion.type) {
+      switch(selectedQuestion.format) {
         case "True or False":
           return <></>
         case "Multiple Choice - Single":
           component = <>
             <div className="flex flex-col gap-1">
-              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={choices.A} onChange={(e)=> {setChoices({...choices, A: e.target.value})}} type={"text"} autoComplete="option" placeholder="A"/>
-              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={choices.B} onChange={(e)=> {setChoices({...choices, B: e.target.value})}} type={"text"} autoComplete="option" placeholder="B"/>
-              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={choices.C} onChange={(e)=> {setChoices({...choices, C: e.target.value})}} type={"text"} autoComplete="option" placeholder="C"/>
-              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={choices.D} onChange={(e)=> {setChoices({...choices, D: e.target.value})}} type={"text"} autoComplete="option" placeholder="D"/>
+              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={selectedQuestion.A} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, A: e.target.value})}} type={"text"} autoComplete="option" placeholder="A"/>
+              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={selectedQuestion.B} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, B: e.target.value})}} type={"text"} autoComplete="option" placeholder="B"/>
+              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={selectedQuestion.C} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, C: e.target.value})}} type={"text"} autoComplete="option" placeholder="C"/>
+              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={selectedQuestion.D} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, D: e.target.value})}} type={"text"} autoComplete="option" placeholder="D"/>
+            </div>
+          </>
+        break
+        case "Multiple Choice - Multiple":
+          component = <>
+            <div className="flex flex-col gap-1">
+              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={selectedQuestion.A} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, A: e.target.value})}} type={"text"} autoComplete="option" placeholder="A"/>
+              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={selectedQuestion.B} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, B: e.target.value})}} type={"text"} autoComplete="option" placeholder="B"/>
+              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={selectedQuestion.C} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, C: e.target.value})}} type={"text"} autoComplete="option" placeholder="C"/>
+              <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="15" value={selectedQuestion.D} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, D: e.target.value})}} type={"text"} autoComplete="option" placeholder="D"/>
             </div>
           </>
         break
         case "Identification":
-          component = <>
-            What will you write today?
-          </>
-        break
+          return <></>
         case "Numerical":
-          component = <>
-            What will you write today?
-          </>
-        break
+          return <></>
         default:
           component = <></>
       }
       let parent = <>
         <div className="flex items-start justify-center w-full gap-4">
-          <b>Choices:</b>
+          <b>Options:</b>
           <div className="w-full">
             {component}
           </div>
@@ -148,7 +226,7 @@ const QuizList = () => {
 
     const handleShowAnswers = () => {
       let component
-      switch(selectedQuestion.type) {
+      switch(selectedQuestion.format) {
         case "True or False":
           component = <>
             <select className="px-2 py-1 border-2 border-gray-700 rounded-lg w-fit" value={selectedQuestion.answer[0]} onChange={(e) => {setSelectedQuestion({...selectedQuestion, answer: [e.target.value]})}}>
@@ -162,28 +240,38 @@ const QuizList = () => {
           component = <>
             <select className="px-2 py-1 border-2 border-gray-700 rounded-lg w-fit" value={selectedQuestion.answer[0]} onChange={(e) => {setSelectedQuestion({...selectedQuestion, answer: [e.target.value]})}}>
               <option value={""}>{"Select One"}</option>
-              <option value={choices.A}>{choices.A}</option>
-              <option value={choices.B}>{choices.B}</option>
-              <option value={choices.C}>{choices.C}</option>
-              <option value={choices.D}>{choices.D}</option>
+              <option value={selectedQuestion.A}>{selectedQuestion.A}</option>
+              <option value={selectedQuestion.B}>{selectedQuestion.B}</option>
+              <option value={selectedQuestion.C}>{selectedQuestion.C}</option>
+              <option value={selectedQuestion.D}>{selectedQuestion.D}</option>
+            </select>
+          </>
+        break
+        case "Multiple Choice - Multiple":
+          component = <>
+            <select className="px-2 py-1 border-2 border-gray-700 rounded-lg w-fit" multiple value={selectedQuestion.answer} onChange={(e) => {handleSelectMultiple(e)}}>
+              <option value={selectedQuestion.A}>{selectedQuestion.A}</option>
+              <option value={selectedQuestion.B}>{selectedQuestion.B}</option>
+              <option value={selectedQuestion.C}>{selectedQuestion.C}</option>
+              <option value={selectedQuestion.D}>{selectedQuestion.D}</option>
             </select>
           </>
         break
         case "Identification":
           component = <>
-            What will you write today?
+            <input className="px-2 py-1 border-2 border-gray-700 border-solid rounded-lg w-80 bg-slate-100" maxLength="50" value={selectedQuestion.answer[0]} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, answer: [e.target.value]})}} type={"text"} autoComplete="answer" />
           </>
         break
         case "Numerical":
           component = <>
-            What will you write today?
+            <input className="px-2 py-1 border-2 border-gray-700 border-solid rounded-lg w-80 bg-slate-100" maxLength="50" value={parseInt(selectedQuestion.answer[0])} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, answer: [e.target.value]})}} type={"number"} step autoComplete="answer" />
           </>
         break
         default:
           component = <></>
       }
       let parent = <>
-        <div className="flex items-center justify-start w-full gap-5 ">
+        <div className="flex items-start justify-start w-full gap-5 ">
           <b>Answer:</b>
           <div className="flex w-full">
             {component}
@@ -191,60 +279,111 @@ const QuizList = () => {
         </div>
       </>
       return  parent
-      
     }
 
     const handleSaveQuestion = () => {
-      console.log("Save Before Quiz: ", selectedQuiz);
-      const options = {...choices};
-      console.log(options , choices)
-      if(selectedQuestion.type === "Multiple Choice - Single"){
-        setSelectedQuestion({...selectedQuestion, options: {A: 'b', C: 'd'}});
-        console.log(selectedQuestion)
-      }
-      console.log("Save Question: ", selectedQuestion);
       setSelectedQuiz({...selectedQuiz, questions:
         selectedQuiz.questions.map( (question) => {
-          console.log(question)
           if( question.id === selectedQuestion.id ){
             return selectedQuestion
           }
           return question
         })
       });
-      console.log("Save After Quiz: ", selectedQuiz);
-      setChoices({A: "", B: "", C: "", D: ""});
+      console.log("Save Question: ", selectedQuestion);
+      let sum = selectedQuiz.questions.reduce(function(prev, current) {
+        if(current.id === selectedQuestion.id){
+          return prev + selectedQuestion.points
+        }
+        return prev + current.points
+      }, 0);
+      console.log(sum)
+      setSelectedQuiz(prev => {return {...prev, totalPoints: sum}})
       setShowQuestionModal(false);
+      setSelectedQuestion({})
+    }
+
+    const handleSaveQuiz = () => {
+      console.log("Save Quiz: ", selectedQuiz);
+
+      if(selectedQuiz.state === "Empty"){
+        Axios.put('http://localhost:5000/quiz/', {
+          selectedQuiz: {...selectedQuiz, state: "Ready"},
+        })
+        .then(function (response) {
+          // SUCCESS
+          console.log(response.data.msg);
+          setShowQuizInfoModal(false);
+          contextData.toggleCheckLogin();
+        })
+        .catch(function (error) {
+          // FAIL
+          console.log(error.response.data.msg);
+        });
+      } else {
+        Axios.put('http://localhost:5000/quiz/', {
+          selectedQuiz: selectedQuiz,
+        })
+        .then(function (response) {
+          // SUCCESS
+          console.log(response.data.msg);
+          setShowQuizInfoModal(false);
+          contextData.toggleCheckLogin();
+        })
+        .catch(function (error) {
+          // FAIL
+          console.log(error.response.data.msg);
+        });
+      }
+    }
+
+    const handleSelectMultiple = (e) => {
+      let value = Array.from(e.target.selectedOptions, option => option.value);
+      setSelectedQuestion({...selectedQuestion, answer: [...value]})
+    }
+
+    const handleChangeQuestionFormat = (e) => {
+      setSelectedQuestion({
+        ...selectedQuestion,
+        format: e.target.value,
+        A: "",
+        B: "",
+        C: "",
+        D: "",
+        answer: [],
+      })
     }
 
     return (<>
         <div className="flex flex-col items-center justify-start w-full h-full gap-2 py-4 overflow-y-auto">
-            <div className="py-5 text-5xl font-bold">
+            <div className="flex items-center justify-between w-4/5 gap-5">
+              <div className="py-5 text-5xl font-bold text-white ">
                 My Quizzes
+              </div>
+              <div className="flex justify-start gap-6 p-2 text-left bg-gray-400 rounded-full w-fit">
+                  <button onClick={() => setShowNewQuizModal(true)} className="flex items-center justify-center gap-2 p-2 bg-gray-300 rounded-full w-fit hover:bg-green-700 hover:text-white">
+                      <PlusCircleIcon className="w-8 rounded-full"/>
+                      New Quiz
+                  </button>
+                  <div className="flex items-center justify-center gap-2 rounded-full w-fit">
+                      <b className="text-lg ">Search: </b>
+                      <input type={"text"} className="p-3 border-2 border-green-900 rounded-full" placeholder="Enter a keyword"/>
+                  </div>
+              </div>
             </div>
-            <div className="flex justify-start gap-6 p-2 text-left bg-gray-200 rounded-full w-fit">
-                <button onClick={() => setShowNewQuizModal(true)} className="flex items-center justify-center gap-2 p-2 bg-gray-300 rounded-full w-fit hover:bg-gray-400">
-                    <PlusCircleIcon className="w-8 rounded-full"/>
-                    New Quiz
-                </button>
-                <div className="flex items-center justify-center gap-2 rounded-full w-fit">
-                    <b className="text-lg ">Search: </b>
-                    <input type={"text"} className="p-3 rounded-full" placeholder="Enter a keyword"/>
-                </div>
-            </div>
-            <div className="flex flex-wrap justify-center w-4/5 gap-4 p-3 text-left bg-gray-300 rounded-2xl">
+            <div className="flex flex-wrap justify-center w-4/5 gap-4 p-3 text-left bg-gray-400 rounded-2xl">
               { contextData.listQuizzes.length !== 0
                 ? contextData.listQuizzes.map( (tile, i) => {
-                    return <div key={i} onClick={() => {handleOpenQuiz(tile._id)}}  className="flex flex-col justify-center gap-4 p-4 border-2 rounded-md cursor-pointer w:80 md:w-72 lg:w-60 bg-slate-100 hover:border-orange-600">
+                    return <div key={i} onClick={() => {handleOpenQuiz(tile._id)}}  className={"flex flex-col justify-center gap-4 p-4 border-2 rounded-md cursor-pointer w:80 md:w-72 lg:w-60 bg-slate-100 hover:border-orange-600"}>
                         <div className="py-1 text-xl font-bold text-orange-700">{tile.title}</div>
-                        <div className="text-justify">{tile.desc}</div>
+                        <div className="text-left">{tile.desc}</div>
                         <div className="flex w-full gap-2">
-                            <div className="px-2 border-2 border-black rounded-full w-fit"><b>{tile.noQuestions}</b> items</div>
+                            <div className="px-2 border-2 border-black rounded-full w-fit"><b>{tile.questions.length}</b> items</div>
                             <div className="px-2 border-2 border-black rounded-full w-fit"><b>{tile.datetime.cDate.slice(0, 10)}</b></div>
                         </div>
                     </div>
                 })
-                : <div className="text-xl ">Empty</div>
+                : <div className="text-xl ">Empty list</div>
               }
             </div>
         </div>
@@ -304,7 +443,7 @@ const QuizList = () => {
               <div className="relative flex flex-col w-full h-full bg-gray-300 border-0 outline-none focus:outline-none ">
                 {/*header*/}
                 <div className="flex items-center justify-between p-2 border-b border-solid rounded-t border-slate-200 ">
-                  <h3 className="text-3xl font-semibold">
+                  <h3 className="text-3xl font-semibold ">
                     Manage Quiz
                   </h3>
                   <button
@@ -318,47 +457,60 @@ const QuizList = () => {
                 </div>
                 {/*body*/}
                 <div className="relative flex flex-col items-start justify-start max-h-full overflow-y-auto">
+                  {/* head */}
                   <div className="flex justify-between w-full p-5 ">
-                    <div className="flex gap-10 ">
-                      <input className="px-2 py-1 border-2 border-gray-700 border-solid rounded-lg w-80 bg-slate-100" maxLength="15" value={selectedQuiz.title} onChange={(e)=> {setSelectedQuiz({...selectedQuiz, title: e.target.value})}} type={"text"} placeholder="Title" autoComplete="title" />
-                      <input className="px-2 py-1 border-2 border-gray-700 border-solid rounded-lg w-80 bg-slate-100" maxLength="50" value={selectedQuiz.desc} onChange={(e)=> {setSelectedQuiz({...selectedQuiz, desc: e.target.value})}} type={"text"} placeholder="Description" autoComplete="description" />
+                    <div className="flex items-center justify-start gap-5 ">
+                      <b className="text-xl ">Title:</b><input className="px-2 py-1 border-2 border-gray-700 border-solid rounded-lg w-80 bg-slate-100" maxLength="15" value={selectedQuiz.title} onChange={(e)=> {setSelectedQuiz({...selectedQuiz, title: e.target.value})}} type={"text"} placeholder="Title" autoComplete="title" />
+                      <b className="text-xl ">Description:</b><input className="px-2 py-1 border-2 border-gray-700 border-solid rounded-lg w-80 bg-slate-100" maxLength="50" value={selectedQuiz.desc} onChange={(e)=> {setSelectedQuiz({...selectedQuiz, desc: e.target.value})}} type={"text"} placeholder="Description" autoComplete="description" />
+                      <b className="text-xl ">Points:</b><div className="text-xl ">{selectedQuiz.totalPoints}</div>
                     </div>
-                    <button onClick={()=>{}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-gray-700 rounded-full shadow-sm shadow-black w-fit">
-                      Results
-                    </button>
+                    <div className="flex gap-3">
+                      {handleShowQuizInfoControls()}
+                      { (selectedQuiz.state === "Empty" || selectedQuiz.state === "Ready" || selectedQuiz.state === "Completed" )
+                        &&
+                        <button onClick={handleDeleteQuiz} className="flex items-center px-5 py-2 text-lg font-medium text-gray-200 bg-red-700 rounded-full shadow-sm shadow-black w-fit">
+                          Delete
+                        </button>
+                      }
+                    </div>
                   </div>
                   <div className="flex items-center justify-between w-full px-5 py-2 border-t-2 border-b-2 border-black border-solid">
                     <div className="text-3xl font-bold">Questions</div>
-                    <div onClick={handleCreateNewQuestion} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-gray-700 rounded-full shadow-sm cursor-pointer shadow-black w-fit">
-                      <PlusIcon width={20}/> new
-                    </div>
+                    { (selectedQuiz.state === "Empty" || selectedQuiz.state === "Ready")
+                      &&
+                      <div onClick={handleCreateNewQuestion} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-gray-700 rounded-full shadow-sm cursor-pointer shadow-black w-fit">
+                        <PlusIcon width={20}/> new
+                      </div>
+                    }
                   </div>
+                  {/* body */}
                   <div className="flex flex-wrap items-start justify-center w-full h-screen gap-2 p-4 rounded-xl">
                     {selectedQuiz.questions.length !== 0
                     ? selectedQuiz.questions.map( (question, i) =>
-                      <div onClick={() => handleManageQuestion(question.id)}  key={i} className="flex flex-col items-start justify-start gap-2 p-4 bg-gray-400 border-2 cursor-pointer w-80 h-80 rounded-3xl hover:border-black " >
-                        <div className="flex gap-2">
+                      <div onClick={() => handleManageQuestion(question.id)}  key={i} className="flex flex-col items-start justify-start gap-2 p-4 bg-gray-100 border-2 border-gray-400 cursor-pointer w-80 h-fit rounded-3xl hover:border-green-700 " >
+                        <div className="flex gap-2 text-left">
                           <b>Question: </b>
                           <div>{question.text}</div>
                         </div>
                         <div>
                           <b>Format: </b>
-                          {question.type}
+                          {question.format}
                         </div>
-                        {question.type !== "True or False" &&
-                          <div className="flex items-center justify-center gap-3">
+                        {question.format !== QUESTION_TYPES[0] && question.format !== QUESTION_TYPES[3] && question.format !== QUESTION_TYPES[4]
+                        &&
+                          <div className="flex items-start justify-start w-full gap-3">
                             <b>Options: </b>
-                            <div className="flex flex-col">
-                              <div>A: {question.options.A}</div>
-                              <div>B: {question.options.B}</div>
-                              <div>C: {question.options.C}</div>
-                              <div>D: {question.options.D}</div>
+                            <div className="flex flex-col w-full text-left">
+                              <div className="w-full">A: {question.A}</div>
+                              <div className="w-full">B: {question.B}</div>
+                              <div className="w-full">C: {question.C}</div>
+                              <div className="w-full">D: {question.D}</div>
                             </div>
                           </div>
                         }
-                        <div>
+                        <div className="flex flex-wrap justify-start w-full gap-2">
                           <b>Answer: </b>
-                          {question.answer.toString()}
+                          <div>{question.answer.toString()}</div>
                         </div>
                         <div><b>Points: </b>{question.points}</div>
                         {question.timeLimit.enabled &&
@@ -373,8 +525,14 @@ const QuizList = () => {
                 </div>
                 {/*footer*/}
                 <div className="flex items-center justify-between p-2 border-t border-solid rounded-b border-slate-200">
-                  <div className="px-3 py-1 rounded-full">
-                    {"Message"}
+                  <div className="flex items-center gap-5">
+                    <div>Status: <b>{selectedQuiz.state}</b></div>
+                    {selectedQuiz.state === "Running" && <div>Room Code: <b className="cursor-pointer " onClick={() => navigator.clipboard.writeText(selectedQuiz.code)}>{selectedQuiz.code}</b></div>}
+                    {selectedQuiz.state === "Running" && <div># Completed: <b>{selectedQuiz.results.noOfCompletion}</b></div>}
+                    {selectedQuiz.state === "Running" && <div><button onClick={()=>{contextData.toggleCheckLogin()}} className="flex items-center p-2 text-lg font-medium text-gray-200 bg-green-700 rounded-full shadow-sm shadow-black w-fit">
+                        <RefreshIcon width={15}/>
+                      </button>
+                    </div>}
                   </div>
                   <div>
                     <button
@@ -387,7 +545,7 @@ const QuizList = () => {
                     <button
                       className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear rounded shadow outline-none bg-emerald-500 active:bg-emerald-600 hover:shadow-lg focus:outline-none"
                       type="button"
-                      onClick={()=>{}}
+                      onClick={handleSaveQuiz}
                     >
                       Save
                     </button>
@@ -429,23 +587,23 @@ const QuizList = () => {
                   {/* FORMAT */}
                   <div className="flex items-center justify-start gap-5">
                     <b>Format: </b>
-                    <select className="px-2 py-1 border-2 border-gray-700 rounded-lg " value={selectedQuestion.type} onChange={(e) => setSelectedQuestion({...selectedQuestion, type: e.target.value})}>
+                    <select className="px-2 py-1 border-2 border-gray-700 rounded-lg " value={selectedQuestion.format} onChange={(e) => handleChangeQuestionFormat(e)}>
                       {QUESTION_TYPES.map((option, i) => {
                         return <option key={i} value={option}>{option}</option>
                       })}
                     </select>
                   </div>
-                  {/* FORMAT */}
+                  {/* OPTIONS AND ANSWERS */}
                   {handleShowOptions()}
                   {handleShowAnswers()}
                   <div className="flex items-center justify-start w-full gap-5 ">
                     <div className="flex items-center justify-start w-2/5 gap-7 " >
                       <b>Points:</b>
-                      <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="3" value={selectedQuestion.points} onChange={(e) => {setSelectedQuestion({...selectedQuestion, points: e.target.value})}} type={"number"} step="1" autoComplete="points" />
+                      <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" min={1} maxLength="3" value={selectedQuestion.points} onChange={(e) => {setSelectedQuestion({...selectedQuestion, points: parseInt(e.target.value)})}} type={"number"} step="1" autoComplete="points" />
                     </div>
                     <div className="flex items-center justify-start w-3/5 gap-7 " >
                       <b>Duration(secs):</b>
-                      <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" maxLength="3" value={selectedQuestion.timeLimit.duration} onChange={(e) => {setSelectedQuestion({...selectedQuestion, timeLimit: {...selectedQuestion.timeLimit, duration: e.target.value}})}} type={"number"} step="1" autoComplete="duration" />
+                      <input className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg bg-slate-100" min={30} max={600} maxLength="3" value={selectedQuestion.timeLimit.duration} onChange={(e) => {setSelectedQuestion({...selectedQuestion, timeLimit: {...selectedQuestion.timeLimit, duration: e.target.value}})}} type={"number"} step="1" autoComplete="duration" />
                     </div>
                   </div>
                 </div>
