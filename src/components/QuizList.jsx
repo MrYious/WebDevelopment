@@ -264,7 +264,7 @@ const QuizList = () => {
         break
         case "Numerical":
           component = <>
-            <input className="px-2 py-1 border-2 border-gray-700 border-solid rounded-lg w-80 bg-slate-100" maxLength="50" value={parseInt(selectedQuestion.answer[0])} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, answer: [e.target.value]})}} type={"number"} step autoComplete="answer" />
+            <input className="px-2 py-1 border-2 border-gray-700 border-solid rounded-lg w-80 bg-slate-100" maxLength="50" value={parseInt(selectedQuestion.answer[0])} onChange={(e)=> {setSelectedQuestion({...selectedQuestion, answer: [e.target.value]})}} type={"number"} autoComplete="answer" />
           </>
         break
         default:

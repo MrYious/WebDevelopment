@@ -2,6 +2,7 @@ import { BackspaceIcon, HomeIcon } from '@heroicons/react/solid'
 import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 import { useContext, useEffect, useState } from "react";
 
+import Axios from '../service/Axios';
 import { UserContext } from "../context/UserContext";
 
 const Quiz = () => {
@@ -24,21 +25,22 @@ const Quiz = () => {
 
     const contextData = useContext(UserContext);
     console.log("Render Quiz", contextData);
-    let { roomID } = useParams();
+    let { roomID, userID } = useParams();
 
     const navigate = useNavigate();
     const [message, setMessage] = useState('');
-    const [nickname, setNickname] = useState(contextData.user.nickname ? contextData.user.nickname: "" );   //
+    const [nickname, setNickname] = useState(contextData.user.nickname ? contextData.user.nickname: userID ? userID : "" );   //
     const [tempName, setTempName] = useState('');
+    const [quizData, setQuizData] = useState({})
 
-    const [isJoined, setIsJoined] = useState(false);        //
-    const [isValidRoom, setIsValidRoom] = useState(true);   //
-    const [isStarted, setIsStarted] = useState(false);      //
-    const [isChangeNickname, setIsChangeNickname] = useState(false);        //
+    const [isJoined, setIsJoined] = useState(false);
+    const [isValidRoom, setIsValidRoom] = useState(true);
+    const [isStarted, setIsStarted] = useState(false);
+    const [isChangeNickname, setIsChangeNickname] = useState(false);
 
     useEffect(() => {
         console.log("Quiz Effect:")
-        // contextData.toggleCheckLogin()
+        handleCheckRoom()
     }, [])
 
     const allowedChars = (str) => {
@@ -58,6 +60,29 @@ const Quiz = () => {
         }
     };
 
+    const handleCheckRoom = () => {
+        console.log(roomID)
+        Axios.post('http://localhost:5000/quiz/room', {
+            code: roomID
+        })
+        .then(function (response) {
+            // SUCCESS
+            console.log(response.data.msg);
+            console.log("QUIZ ROOM", response.data.quiz);
+            setQuizData(response.data.quiz)
+            setIsValidRoom(true);
+        })
+        .catch(function (error) {
+            // FAIL
+            console.log(error.response.data.msg);
+            setIsValidRoom(false);
+        });
+    }
+
+    const handleCheckStarted = () => {
+        
+    }
+
     const handleChangeNickname = () => {
         setIsChangeNickname(true)
         setTempName(nickname)
@@ -69,8 +94,8 @@ const Quiz = () => {
     }
 
     return(<>
-        { isJoined
-        ?   <><Outlet/></>
+        {   isJoined
+        ?   <><Outlet context={[quizData, setQuizData]}/></>
         :   <div className='flex flex-col items-center justify-center h-screen bg-gray-300'>
                 {
                     isValidRoom
