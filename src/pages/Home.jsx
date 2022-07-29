@@ -20,7 +20,7 @@ const Home = () => {
   }, [])
 
   return (<>
-    <div className='flex flex-col items-center justify-center h-screen text-white bg-gray-300 bg-gradient-to-r from-emerald-800 to-green-800'>
+    <div className='flex flex-col items-center justify-center h-screen text-white bg-gradient-to-r from-emerald-800 to-green-800'>
       {/* NAVBAR */}
       <div className="flex items-center justify-between w-full px-3 py-2">
         {/* ICON */}

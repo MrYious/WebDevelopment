@@ -35,7 +35,6 @@ const Quiz = () => {
 
     const [isJoined, setIsJoined] = useState(false);
     const [isValidRoom, setIsValidRoom] = useState(true);
-    const [isStarted, setIsStarted] = useState(false);
     const [isChangeNickname, setIsChangeNickname] = useState(false);
 
     useEffect(() => {
@@ -79,10 +78,6 @@ const Quiz = () => {
         });
     }
 
-    const handleCheckStarted = () => {
-        
-    }
-
     const handleChangeNickname = () => {
         setIsChangeNickname(true)
         setTempName(nickname)
@@ -96,7 +91,7 @@ const Quiz = () => {
     return(<>
         {   isJoined
         ?   <><Outlet context={[quizData, setQuizData]}/></>
-        :   <div className='flex flex-col items-center justify-center h-screen bg-gray-300'>
+        :   <div className='flex flex-col items-center justify-center h-screen bg-gradient-to-r from-emerald-800 to-green-800'>
                 {
                     isValidRoom
                     ?
@@ -104,53 +99,47 @@ const Quiz = () => {
                             {/* HEADER */}
                             <div className="flex items-center justify-between w-full gap-1 px-3 py-2">
                                 <div className='flex gap-2'>
-                                    <div className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-gray-700 rounded-full">
+                                    <div className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-[#082b17] shadow-sm shadow-black rounded-full">
                                         {nickname ? nickname : "Guest"}
                                     </div>
-                                    <div className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-gray-700 rounded-full cursor-pointer" onClick={() => navigator.clipboard.writeText(roomID)}>
+                                    <div className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-[#082b17] shadow-sm shadow-black rounded-full cursor-pointer" onClick={() => navigator.clipboard.writeText(roomID)}>
                                         {roomID}
                                     </div>
                                 </div>
                                 <div className='flex gap-2'>
-                                    <Link to={'/'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-red-800 rounded-full w-fit">
+                                    <Link to={'/'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-red-800 rounded-full shadow-sm w-fit shadow-black">
                                         <BackspaceIcon className="h-7 w-7"/>
                                     </Link>
-                                    <Link to={'/home'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-red-800 rounded-full w-fit">
+                                    <Link to={'/home'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-red-800 rounded-full shadow-sm w-fit shadow-black">
                                         <HomeIcon className="h-7 w-7"/>
                                     </Link>
                                 </div>
                             </div>
                             {/* CONTENT */}
                             <div className="flex flex-col items-center justify-center w-full h-full gap-10 text-center">
-                                <div className="text-6xl font-bold text-gray-700">SmartQ</div>
+                                <div className="text-6xl font-bold text-gray-200">SmartQ</div>
                                 {(
                                         (isChangeNickname || nickname.length === 0)
                                     ?   // Nickname
                                         <div className='flex flex-col gap-3 p-4 bg-gray-200 rounded-lg w-96'>
                                             { message && <div> {message} </div> }
                                             <input className='py-2 text-xl text-center border-2 border-gray-700 rounded-lg' maxLength={15} type={"text"} placeholder={"Nickname"} value={tempName} onChange={e => setTempName(e.target.value)}/>
-                                            <button className='w-full py-2 text-xl font-bold text-gray-200 bg-orange-700 rounded-lg' onClick={handleClickJoin}>
+                                            <button className='w-full py-2 text-xl font-bold text-gray-100 bg-green-800 rounded-lg' onClick={handleClickJoin}>
                                                 JOIN
                                             </button>
                                         </div>
                                     :   // Preparation Room
                                         <div className='flex flex-col gap-3 p-4 bg-gray-200 rounded-lg w-96'>
-                                            <div className='py-2 text-xl' >
-                                            { isStarted
-                                                    ? <>The party started!</>
-                                                    : <>Are you ready challenger?!</>
-                                                }
+                                            <div className='py-2 text-xl font-bold' >
+                                                { quizData.title && quizData.title}
                                             </div>
                                             <div className='py-2 text-xl' >
-                                                { isStarted
-                                                    ? <><b>{nickname}</b>, wanna catch up?</>
-                                                    : <>Ready, <b>{nickname}</b>?</>
-                                                }
+                                                <>Are you ready, <b>{nickname}</b>?</>
                                             </div>
                                             <button className='w-full py-2 text-xl font-bold text-gray-200 bg-gray-600 rounded-lg' onClick={handleChangeNickname}>
                                                 CHANGE NICKNAME
                                             </button>
-                                            <Link to={nickname} onClick={handleStart} className='w-full py-2 text-xl font-bold text-gray-200 bg-orange-700 rounded-lg'>
+                                            <Link to={nickname} onClick={handleStart} className='w-full py-2 text-xl font-bold text-gray-100 bg-green-800 rounded-lg'>
                                                 LET'S GO
                                             </Link>
                                         </div>
@@ -159,11 +148,11 @@ const Quiz = () => {
                         </>
                     :
                         // INVALID PAGE
-                        <div className="flex flex-col items-center justify-center w-2/6 gap-3 text-center bg-gray-300">
+                        <div className="flex flex-col items-center justify-center w-2/6 gap-3 text-center text-white">
                             <div className="py-7 text-8xl">Oops!</div>
-                            <div className="text-xl">The room you are trying to access is <b className='text-red-600'>invalid</b>  or has <b className='text-red-600'>already expired</b>.</div>
-                            <div className="text-xl">Double check the link or contact your host</div>
-                            <Link to={'/'} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-orange-700 rounded-full cursor-pointer" onClick={() => navigator.clipboard.writeText(roomID)}>
+                            <div className="text-xl">The room you are trying to access is either <b className='border-b-2 border-red-700'>invalid</b>  or has <b className='border-b-2 border-red-700'>already expired</b>.</div>
+                            <div className="text-xl">Double check the room link / code or contact your host</div>
+                            <Link to={'/'} className="flex items-center px-4 py-2 text-2xl font-medium text-gray-200 bg-red-700 rounded-full shadow-sm cursor-pointer shadow-black text-bold b" onClick={() => navigator.clipboard.writeText(roomID)}>
                                 Go Back
                             </Link>
                         </div>

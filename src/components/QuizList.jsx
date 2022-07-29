@@ -1,4 +1,4 @@
-import { PlusCircleIcon, RefreshIcon } from "@heroicons/react/outline";
+import { PlusCircleIcon, RefreshIcon, XCircleIcon } from "@heroicons/react/outline";
 import { useContext, useEffect, useState } from "react";
 
 import Axios from "../service/Axios"
@@ -50,9 +50,9 @@ const QuizList = () => {
         })
         .then(function (response) {
           // SUCCESS
+          setShowNewQuizModal(false);
           setTitle("");
           setDescription("");
-          setShowNewQuizModal(false);
           contextData.toggleCheckLogin();
         })
         .catch(function (error) {
@@ -132,7 +132,7 @@ const QuizList = () => {
           </>
         case "Ready":
           return <>
-            <button onClick={handleStartQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-green-700 rounded-full shadow-sm shadow-black w-fit">
+            <button onClick={handleStartQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-blue-900 rounded-full shadow-sm shadow-black w-fit">
               Start
             </button>
           </>
@@ -144,10 +144,10 @@ const QuizList = () => {
           </>
         case "Completed":
           return <>
-            <button onClick={handleStartQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-green-700 rounded-full shadow-sm shadow-black w-fit">
+            <button onClick={handleStartQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-blue-900 rounded-full shadow-sm shadow-black w-fit">
               Start
             </button>
-            <button onClick={()=>{setShowResultsModal(true)}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-green-700 rounded-full shadow-sm shadow-black w-fit">
+            <button onClick={()=>{setShowResultsModal(true)}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-blue-900 rounded-full shadow-sm shadow-black w-fit">
               Results
             </button>
           </>
@@ -184,6 +184,15 @@ const QuizList = () => {
       console.log("Selected Question: ", selected)
       setSelectedQuestion(selected);
       setShowQuestionModal(true);
+    }
+
+    const handleDeleteQuestion = () => {
+      const newQuestions  = selectedQuiz.questions.filter(e => {
+        return selectedQuestion.id !== e.id
+      })
+      setSelectedQuiz({ ...selectedQuiz, questions: [...newQuestions]})
+      setShowQuestionModal(false);
+      setSelectedQuestion({})
     }
 
     const handleShowOptions = () => {
@@ -366,7 +375,7 @@ const QuizList = () => {
                 My Quizzes
               </div>
               <div className="flex justify-start gap-6 p-2 text-left bg-gray-400 rounded-full w-fit">
-                  <button onClick={() => setShowNewQuizModal(true)} className="flex items-center justify-center gap-2 p-2 bg-gray-300 rounded-full w-fit hover:bg-green-700 hover:text-white">
+                  <button onClick={() => setShowNewQuizModal(true)} className="flex items-center justify-center gap-2 p-2 bg-gray-300 rounded-full shadow-sm w-fit hover:bg-green-700 hover:text-white hover:shadow-black">
                       <PlusCircleIcon className="w-8 rounded-full"/>
                       New Quiz
                   </button>
@@ -496,7 +505,7 @@ const QuizList = () => {
                     <div className="flex flex-wrap items-start justify-center gap-3 ">
                       {selectedQuiz.questions.length !== 0
                       ? selectedQuiz.questions.map( (question, i) =>
-                        <div onClick={() => handleManageQuestion(question.id)}  key={i} className="flex flex-col items-start justify-start gap-2 p-4 bg-gray-400 border-4 border-gray-400 cursor-pointer w-80 h-fit rounded-3xl hover:border-gray-900 " >
+                        <div onClick={() => handleManageQuestion(question.id)} key={i} className="flex flex-col items-start justify-start gap-2 p-4 bg-gray-400 border-4 border-gray-400 cursor-pointer w-80 h-fit rounded-3xl hover:border-gray-900 " >
                           <div className="flex gap-2 text-left">
                             <b>Question: </b>
                             <div>{question.text}</div>
@@ -545,7 +554,7 @@ const QuizList = () => {
                           return quiz._id === selectedQuiz._id;
                         });
                         setSelectedQuiz(selected);
-                      }} className="flex items-center p-2 text-lg font-medium text-gray-200 bg-green-700 rounded-full shadow-sm shadow-black w-fit">
+                      }} className="flex items-center p-2 text-lg font-medium text-gray-200 bg-green-900 rounded-full shadow-sm shadow-black w-fit">
                         <RefreshIcon width={15}/>
                       </button>
                     </div>}
@@ -559,7 +568,7 @@ const QuizList = () => {
                       Close
                     </button>
                     <button
-                      className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear rounded shadow outline-none bg-emerald-500 active:bg-emerald-600 hover:shadow-lg focus:outline-none"
+                      className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-green-800 rounded shadow outline-none active:bg-emerald-600 hover:shadow-lg focus:outline-none"
                       type="button"
                       onClick={handleSaveQuiz}
                     >
@@ -624,21 +633,30 @@ const QuizList = () => {
                   </div>
                 </div>
                 {/*footer*/}
-                <div className="flex items-center justify-end p-2 border-t border-solid rounded-b border-slate-200 h-1/6">
+                <div className="flex items-center justify-between p-2 border-t border-solid rounded-b border-slate-200 h-1/6">
                   <button
-                    className="px-6 py-2 mb-1 mr-1 text-sm font-bold text-red-500 uppercase transition-all duration-150 ease-linear outline-none background-transparent focus:outline-none"
+                    className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-red-500 rounded shadow outline-none active:bg-red-600 hover:shadow-lg focus:outline-none"
                     type="button"
-                    onClick={() => setShowQuestionModal(false)}
+                    onClick={(handleDeleteQuestion)}
                   >
-                    Close
+                    DELETE
                   </button>
-                  <button
-                    className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear rounded shadow outline-none bg-emerald-500 active:bg-emerald-600 hover:shadow-lg focus:outline-none"
-                    type="button"
-                    onClick={handleSaveQuestion}
-                  >
-                    Save
-                  </button>
+                  <div>
+                    <button
+                      className="px-6 py-2 mb-1 mr-1 text-sm font-bold text-red-500 uppercase transition-all duration-150 ease-linear outline-none background-transparent focus:outline-none"
+                      type="button"
+                      onClick={() => setShowQuestionModal(false)}
+                    >
+                      Close
+                    </button>
+                    <button
+                      className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear rounded shadow outline-none bg-emerald-500 active:bg-emerald-600 hover:shadow-lg focus:outline-none"
+                      type="button"
+                      onClick={handleSaveQuestion}
+                    >
+                      Save
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

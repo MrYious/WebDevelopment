@@ -1,4 +1,4 @@
-import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/outline';
+import { CheckCircleIcon, ExclamationCircleIcon, XCircleIcon } from '@heroicons/react/outline';
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 
@@ -454,7 +454,7 @@ const TheRoom = () => {
                 setCheckAnswer(true);
                 break
             case "Identification":
-                if(quizData.questions[currentNumber-1].answer[0] === selectChoices.text){
+                if(quizData.questions[currentNumber-1].answer[0].toLowerCase() === selectChoices.text.toLowerCase()) {
                     setMessage("Correct");
                     const answer = {
                         id: quizData.questions[currentNumber-1].id,
@@ -785,9 +785,9 @@ const TheRoom = () => {
                                 {
                                     userData.answers.map((answer, i) => {
                                         if(answer.evaluation){
-                                            return <div  key={i}>{i+1}: Correct </div>
+                                            return <div key={i} className="flex items-center gap-1">{i+1}: <CheckCircleIcon width={25} color={'green'}/> </div>
                                         }
-                                        return <div  key={i}>{i+1}: Wrong </div>
+                                        return <div key={i} className="flex">{i+1}: <XCircleIcon width={25} color={'red'}/></div>
                                     })
                                 }
                             </div>
