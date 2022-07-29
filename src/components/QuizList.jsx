@@ -1,8 +1,8 @@
-import { PlusCircleIcon, RefreshIcon, XCircleIcon } from "@heroicons/react/outline";
+import { CheckCircleIcon, PlusCircleIcon, RefreshIcon, XCircleIcon } from "@heroicons/react/outline";
+import { PlusIcon, XIcon } from "@heroicons/react/solid";
 import { useContext, useEffect, useState } from "react";
 
 import Axios from "../service/Axios"
-import { PlusIcon } from "@heroicons/react/solid";
 import { UserContext } from "../context/UserContext";
 import { customAlphabet } from 'nanoid'
 import nextId from "react-id-generator";
@@ -16,11 +16,13 @@ const QuizList = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [filter, setFilter] = useState('');
+    const [filterResults, setFilterResults] = useState('');
 
     const [showNewQuizModal, setShowNewQuizModal] = useState(false);
     const [showQuizInfoModal, setShowQuizInfoModal] = useState(false);
     const [showQuestionModal, setShowQuestionModal] = useState(false);
     const [showResultsModal, setShowResultsModal] = useState(false);
+    const [showAnalyticModal, setShowAnalyticModal] = useState(false);
 
     const [selectedQuiz, setSelectedQuiz] = useState({});
     const [selectedQuestion, setSelectedQuestion] = useState({});
@@ -126,28 +128,28 @@ const QuizList = () => {
       switch (selectedQuiz.state) {
         case "Empty":
           return <>
-            <button onClick={()=>{}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-gray-500 rounded-full shadow-sm shadow-black w-fit">
+            <button onClick={()=>{}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-gray-500 rounded-full shadow-md shadow-black w-fit">
               Start
             </button>
           </>
         case "Ready":
           return <>
-            <button onClick={handleStartQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-blue-900 rounded-full shadow-sm shadow-black w-fit">
+            <button onClick={handleStartQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-blue-900 rounded-full shadow-md shadow-black w-fit">
               Start
             </button>
           </>
         case "Running":
           return <>
-            <button onClick={handleStopQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-red-500 rounded-full shadow-sm shadow-black w-fit">
+            <button onClick={handleStopQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-red-500 rounded-full shadow-md shadow-black w-fit">
               Stop
             </button>
           </>
         case "Completed":
           return <>
-            <button onClick={handleStartQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-blue-900 rounded-full shadow-sm shadow-black w-fit">
+            <button onClick={handleStartQuiz} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-blue-900 rounded-full shadow-md shadow-black w-fit">
               Start
             </button>
-            <button onClick={()=>{setShowResultsModal(true)}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-blue-900 rounded-full shadow-sm shadow-black w-fit">
+            <button onClick={()=>{setShowResultsModal(true)}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-200 bg-blue-900 rounded-full shadow-md shadow-black w-fit">
               Results
             </button>
           </>
@@ -374,24 +376,24 @@ const QuizList = () => {
               <div className="py-5 text-5xl font-bold text-white ">
                 My Quizzes
               </div>
-              <div className="flex justify-start gap-6 p-2 text-left bg-gray-400 rounded-full w-fit">
-                  <button onClick={() => setShowNewQuizModal(true)} className="flex items-center justify-center gap-2 p-2 bg-gray-300 rounded-full shadow-sm w-fit hover:bg-green-700 hover:text-white hover:shadow-black">
+              <div className="flex justify-start gap-6 p-2 text-left bg-green-900 rounded-full w-fit">
+                  <button onClick={() => setShowNewQuizModal(true)} className="flex items-center justify-center gap-1 p-2 font-bold bg-gray-100 rounded-full shadow-md shadow-black w-fit">
                       <PlusCircleIcon className="w-8 rounded-full"/>
                       New Quiz
                   </button>
                   <div className="flex items-center justify-center gap-2 rounded-full w-fit">
-                      <b className="text-lg ">Search: </b>
-                      <input type={"text"} value={filter} onChange={(e)=>{setFilter(e.target.value)}} className="p-3 border-2 border-green-900 rounded-full" placeholder="Enter a keyword"/>
+                      <b className="text-lg text-white">Search: </b>
+                      <input type={"text"} value={filter} onChange={(e)=>{setFilter(e.target.value)}} className="p-3 rounded-full shadow-md shadow-black" placeholder="Enter a keyword"/>
                   </div>
               </div>
             </div>
-            <div className="flex flex-wrap justify-center w-4/5 gap-4 p-3 text-left bg-gray-400 rounded-2xl">
+            <div className="flex flex-wrap justify-center w-4/5 gap-4 p-3 text-left rounded-2xl">
               {
                 contextData.listQuizzes.filter((quiz) => {
-                  return quiz.title.toLowerCase().includes(filter) || quiz.desc.toLowerCase().includes(filter)
+                  return quiz.title.toLowerCase().includes(filter.toLowerCase()) || quiz.desc.toLowerCase().includes(filter.toLowerCase())
                 }).length !== 0
-                  ? contextData.listQuizzes.filter((quiz) => {return quiz.title.toLowerCase().includes(filter) || quiz.desc.toLowerCase().includes(filter)}).map( (tile, i) => {
-                    return <div key={i} onClick={() => {handleOpenQuiz(tile._id)}}  className={"flex flex-col justify-center gap-4 p-4 border-2 rounded-md cursor-pointer w:80 md:w-72 lg:w-60 bg-slate-100 hover:border-orange-600"}>
+                  ? contextData.listQuizzes.filter((quiz) => {return quiz.title.toLowerCase().includes(filter.toLowerCase()) || quiz.desc.toLowerCase().includes(filter.toLowerCase())}).map( (tile, i) => {
+                    return <div key={i} onClick={() => {handleOpenQuiz(tile._id)}}  className={"flex flex-col justify-center gap-4 p-4 border-[3px] rounded-md cursor-pointer w:80 md:w-72 lg:w-60 bg-green-100 hover:border-black shadow-md shadow-black"}>
                         <div className="py-1 text-xl font-bold text-orange-700">{tile.title}</div>
                         <div className="text-left">{tile.desc}</div>
                         <div className="flex w-full gap-2">
@@ -400,7 +402,7 @@ const QuizList = () => {
                         </div>
                     </div>
                     })
-                  : <div className="text-xl ">Empty list</div>
+                  : <div className="text-xl text-white ">Empty list</div>
               }
             </div>
         </div>
@@ -409,7 +411,7 @@ const QuizList = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
             <div className="relative w-auto max-w-3xl mx-auto my-6">
               {/*content*/}
-              <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none">
+              <div className="relative flex flex-col w-full border-0 rounded-lg shadow-lg outline-none bg-green-50 focus:outline-none">
                 {/*header*/}
                 <div className="flex items-center justify-between p-2 border-b border-solid rounded-t border-slate-200 ">
                   <h3 className="text-xl font-semibold ">
@@ -419,9 +421,7 @@ const QuizList = () => {
                     className="float-right p-1 text-3xl font-semibold leading-none border-0 outline-none "
                     onClick={() => setShowNewQuizModal(false)}
                   >
-                    <span className="block w-6 h-6 text-2xl text-black bg-transparent outline-none focus:outline-none">
-                      ×
-                    </span>
+                    <XIcon width={25} />
                   </button>
                 </div>
                 {/*body*/}
@@ -439,7 +439,7 @@ const QuizList = () => {
                     Close
                   </button>
                   <button
-                    className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear rounded shadow outline-none bg-emerald-500 active:bg-emerald-600 hover:shadow-lg focus:outline-none"
+                    className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-green-800 rounded shadow-md outline-none shadow-black active:bg-emerald-600 focus:outline-none"
                     type="button"
                     onClick={handleCreateNewQuiz}
                   >
@@ -457,25 +457,23 @@ const QuizList = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center max-h-screen outline-none focus:outline-none">
             <div className="relative w-full h-full">
               {/*content*/}
-              <div className="relative flex flex-col w-full h-full bg-gray-400 border-0 outline-none focus:outline-none ">
+              <div className="relative flex flex-col w-full h-full bg-green-200 border-0 outline-none focus:outline-none ">
                 {/*header*/}
-                <div className="flex items-center justify-between p-2 border-b border-solid border-slate-200 ">
-                  <h3 className="text-3xl font-semibold ">
+                <div className="flex items-center justify-between p-2">
+                  <h3 className="px-4 text-3xl font-semibold">
                     Manage Quiz
                   </h3>
                   <button
                     className="float-right p-1 text-3xl font-semibold leading-none border-0 outline-none "
                     onClick={() => setShowQuizInfoModal(false)}
                   >
-                    <span className="block w-6 h-6 text-2xl text-black bg-transparent outline-none focus:outline-none">
-                      ×
-                    </span>
+                    <XIcon width={25} />
                   </button>
                 </div>
                 {/*body*/}
                 <div className="relative flex flex-col items-start justify-start h-full max-h-full overflow-y-auto bg-gradient-to-r from-emerald-700 to-green-700">
                   {/* head */}
-                  <div className="flex justify-between w-full p-2 text-gray-50">
+                  <div className="flex justify-between w-full px-5 py-3 text-gray-50">
                     <div className="flex items-center justify-start gap-5 ">
                       <b className="text-xl">Title:</b><input className="px-2 py-1 text-black border-2 border-gray-700 border-solid rounded-lg w-80 bg-slate-100" maxLength="15" value={selectedQuiz.title} onChange={(e)=> {setSelectedQuiz({...selectedQuiz, title: e.target.value})}} type={"text"} placeholder="Title" autoComplete="title" />
                       <b className="text-xl ">Description:</b><input className="px-2 py-1 text-black border-2 border-gray-700 border-solid rounded-lg w-80 bg-slate-100" maxLength="50" value={selectedQuiz.desc} onChange={(e)=> {setSelectedQuiz({...selectedQuiz, desc: e.target.value})}} type={"text"} placeholder="Description" autoComplete="description" />
@@ -485,7 +483,7 @@ const QuizList = () => {
                       {handleShowQuizInfoControls()}
                       { (selectedQuiz.state === "Empty" || selectedQuiz.state === "Ready" || selectedQuiz.state === "Completed" )
                         &&
-                        <button onClick={handleDeleteQuiz} className="flex items-center px-5 py-2 text-lg font-medium text-gray-200 bg-red-700 rounded-full shadow-sm shadow-black w-fit">
+                        <button onClick={handleDeleteQuiz} className="flex items-center px-5 py-2 text-lg font-medium text-gray-200 bg-red-700 rounded-full shadow-md shadow-black w-fit">
                           Delete
                         </button>
                       }
@@ -497,7 +495,7 @@ const QuizList = () => {
                       <div className="px-6 text-3xl font-bold text-gray-100">Questions</div>
                       { (selectedQuiz.state === "Empty" || selectedQuiz.state === "Ready" || selectedQuiz.state === "Completed")
                         &&
-                        <div onClick={handleCreateNewQuestion} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-900 bg-gray-300 rounded-full shadow-md cursor-pointer shadow-black w-fit">
+                        <div onClick={handleCreateNewQuestion} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-900 bg-green-100 rounded-full shadow-md cursor-pointer shadow-black w-fit">
                           <PlusIcon width={20}/> new
                         </div>
                       }
@@ -505,7 +503,7 @@ const QuizList = () => {
                     <div className="flex flex-wrap items-start justify-center gap-3 ">
                       {selectedQuiz.questions.length !== 0
                       ? selectedQuiz.questions.map( (question, i) =>
-                        <div onClick={() => handleManageQuestion(question.id)} key={i} className="flex flex-col items-start justify-start gap-2 p-4 bg-gray-400 border-4 border-gray-400 cursor-pointer w-80 h-fit rounded-3xl hover:border-gray-900 " >
+                        <div onClick={() => handleManageQuestion(question.id)} key={i} className="flex flex-col items-start justify-start gap-2 p-4 bg-green-200 border-[3px] border-green-200 shadow-md cursor-pointer shadow-black w-80 h-fit rounded-3xl hover:border-gray-900 " >
                           <div className="flex gap-2 text-left">
                             <b>Question: </b>
                             <div>{question.text}</div>
@@ -543,7 +541,7 @@ const QuizList = () => {
                   </div>
                 </div>
                 {/*footer*/}
-                <div className="flex items-center justify-between p-2 border-t border-solid rounded-b border-slate-200">
+                <div className="flex items-center justify-between p-2 bg-green-200">
                   <div className="flex items-center gap-5">
                     <div>Status: <b>{selectedQuiz.state}</b></div>
                     {selectedQuiz.state === "Running" && <div>Room Code: <b className="cursor-pointer " onClick={() => navigator.clipboard.writeText(selectedQuiz.code)}>{selectedQuiz.code}</b></div>}
@@ -568,7 +566,7 @@ const QuizList = () => {
                       Close
                     </button>
                     <button
-                      className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-green-800 rounded shadow outline-none active:bg-emerald-600 hover:shadow-lg focus:outline-none"
+                      className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-green-800 rounded shadow-md outline-none shadow-black active:bg-emerald-600 focus:outline-none"
                       type="button"
                       onClick={handleSaveQuiz}
                     >
@@ -585,9 +583,9 @@ const QuizList = () => {
         {showQuestionModal && selectedQuestion ? (
         <>
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden outline-none focus:outline-none ">
-            <div className="flex flex-col items-center justify-center w-2/6 h-5/6">
+            <div className="flex flex-col items-center justify-center w-2/6 h-5/6 ">
               {/*content*/}
-              <div className="flex flex-col w-full max-h-full bg-white border-0 rounded-lg shadow-lg outline-none h-fit focus:outline-none">
+              <div className="flex flex-col w-full max-h-full border-0 rounded-lg shadow-lg outline-none bg-green-50 h-fit focus:outline-none ">
                 {/*header*/}
                 <div className="flex items-center justify-between p-2 border-b border-solid rounded-t border-slate-200 h-1/6">
                   <h3 className="text-xl font-semibold ">
@@ -597,9 +595,7 @@ const QuizList = () => {
                     className="float-right p-1 text-3xl font-semibold leading-none border-0 outline-none "
                     onClick={() => setShowQuestionModal(false)}
                   >
-                    <span className="block w-6 h-6 text-2xl text-black bg-transparent outline-none focus:outline-none">
-                      ×
-                    </span>
+                    <XIcon width={25} />
                   </button>
                 </div>
                 {/*body*/}
@@ -607,7 +603,7 @@ const QuizList = () => {
                   {/* QUESTION */}
                   <div className="flex items-center justify-start w-full gap-2">
                     <b>Question:</b>
-                    <textarea name="question" value={selectedQuestion.text} onChange={(e) => { setSelectedQuestion({...selectedQuestion, text: e.target.value})}} rows="2" maxLength="150" className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg resize-none bg-slate-100"/>
+                    <textarea name="question" placeholder="Enter a question" value={selectedQuestion.text} onChange={(e) => { setSelectedQuestion({...selectedQuestion, text: e.target.value})}} rows="2" maxLength="150" className="w-full px-2 py-1 border-2 border-gray-700 border-solid rounded-lg resize-none bg-slate-100"/>
                   </div>
                   {/* FORMAT */}
                   <div className="flex items-center justify-start gap-5">
@@ -635,7 +631,7 @@ const QuizList = () => {
                 {/*footer*/}
                 <div className="flex items-center justify-between p-2 border-t border-solid rounded-b border-slate-200 h-1/6">
                   <button
-                    className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-red-500 rounded shadow outline-none active:bg-red-600 hover:shadow-lg focus:outline-none"
+                    className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-red-700 rounded shadow-md outline-none active:bg-red-600 shadow-black focus:outline-none"
                     type="button"
                     onClick={(handleDeleteQuestion)}
                   >
@@ -650,7 +646,7 @@ const QuizList = () => {
                       Close
                     </button>
                     <button
-                      className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear rounded shadow outline-none bg-emerald-500 active:bg-emerald-600 hover:shadow-lg focus:outline-none"
+                      className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-green-800 rounded shadow-md outline-none active:bg-green-600 shadow-black focus:outline-none"
                       type="button"
                       onClick={handleSaveQuestion}
                     >
@@ -668,85 +664,94 @@ const QuizList = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center max-h-screen outline-none focus:outline-none">
             <div className="relative w-full h-full">
               {/*content*/}
-              <div className="relative flex flex-col w-full h-full bg-gray-300 border-0 outline-none focus:outline-none ">
+              <div className="relative flex flex-col w-full h-full bg-green-200 border-0 outline-none focus:outline-none ">
                 {/*header*/}
-                <div className="flex items-center justify-between p-2 border-b border-solid rounded-t border-slate-200 ">
-                  <h3 className="text-3xl font-semibold ">
-                    Quiz Results
+                <div className="flex items-center justify-between p-2">
+                  <h3 className="px-4 text-3xl font-semibold">
+                    Results
                   </h3>
                   <button
                     className="float-right p-1 text-3xl font-semibold leading-none border-0 outline-none "
                     onClick={() => setShowResultsModal(false)}
                   >
-                    <span className="block w-6 h-6 text-2xl text-black bg-transparent outline-none focus:outline-none">
-                      ×
-                    </span>
+                    <XIcon width={25} />
                   </button>
                 </div>
                 {/*body*/}
-                <div className="relative flex flex-col items-start justify-start h-full max-h-full overflow-y-auto">
+                <div className="relative flex flex-col items-start justify-start h-full max-h-full overflow-y-auto bg-gradient-to-r from-emerald-700 to-green-700">
                   {/* HERE */}
                   {/* CONTROLS */}
-                  <div className="flex items-center justify-between w-full px-10 py-2 border-t-2 border-b-2 border-black border-solid">
-                    <div className="text-2xl font-bold">Submissions</div>
-                    {/* <div>Questions</div>
-                    <div>Participants</div> */}
-                  </div>
-                  {/* ITEMS */}
-                  <div className="flex flex-wrap items-start justify-center w-full h-screen gap-2 p-4 rounded-xl">
-                    {selectedQuiz.submission.length !== 0
-                    ? selectedQuiz.submission.map( (submission, i) =>
-                      <div onClick={()=>{}}  key={i} className="flex flex-col items-start justify-start gap-2 p-4 bg-gray-100 border-2 border-gray-400 cursor-pointer w-80 h-fit rounded-3xl hover:border-green-700 " >
-                        <div className="flex gap-2 text-left">
-                          <b>Nickname: </b>
-                          <div>{submission.nickname}</div>
-                        </div>
-                        <div className="flex gap-5">
-                          <div>
-                            <b># Correct : </b>
-                            <b>{submission.answers.filter((answer, i) => {
-                                  return answer.evaluation
-                              }).length
-                              }
-                            </b>
-                          </div>
-                          <div>
-                            <b># Incorrect : </b>
-                            <b>{ selectedQuiz.questions.length - submission.answers.filter((answer, i) => {
-                                  return answer.evaluation
-                              }).length
-                              }
-                            </b>
-                          </div>
-                        </div>
-                        <div className="text-left">
-                          <p>Correctly Answered Questions </p>
-                          <p>{
-                            submission.answers.filter((answer, i) => {
-                              return answer.evaluation
-                            }).map((e, i) => { return i+1}).toString()
-                          }
-                          </p>
-                        </div>
-                        <div>
-                          <b>Total Score: </b>
-                          <b>{submission.totalScore}</b> / {selectedQuiz.totalPoints}
-                        </div>
-                        {/* <div className='flex flex-wrap items-start justify-start gap-4'>
-                          {
-                            submission.answers.map((answer, i) => {
-                                if(answer.evaluation){
-                                    return <div key={i}>{i+1}: Correct </div>
-                                }
-                                return <div  key={i}>{i+1}: Wrong </div>
-                            })
-                          }
-                        </div> */}
+                  <div className="flex flex-col items-center justify-start w-full gap-6 px-2 py-5">
+                    <div className="flex items-center justify-between w-full px-2 py-2 bg-green-900 rounded-full">
+                      <div className="px-6 text-3xl font-bold text-gray-100">Submissions</div>
+                      <div className="flex items-center justify-center gap-2 rounded-full ">
+                        <b className="text-lg text-white">Search: </b>
+                        <input type={"text"} value={filterResults} onChange={(e)=>{setFilterResults(e.target.value)}} className="p-2 rounded-full shadow-md shadow-black" placeholder="Enter a name"/>
                       </div>
-                    )
-                    : <p className="text-xl font-bold">
-                      Empty List
-                    </p>}
+                      <div onClick={()=> {setShowAnalyticModal(true)}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-900 bg-green-100 rounded-full shadow-md cursor-pointer shadow-black w-fit">
+                        Analytics
+                      </div>
+                    </div>
+                    {/* ITEMS */}
+                    <div className="flex flex-wrap items-start justify-center gap-3 ">
+                    {selectedQuiz.submission.filter((ans) => {
+                      return ans.nickname.toLowerCase().includes(filterResults.toLowerCase())
+                    }).length !== 0
+                      ? selectedQuiz.submission.filter((ans) => {
+                        return ans.nickname.toLowerCase().includes(filterResults.toLowerCase())
+                      }).map( (submission, i) =>
+                        <div onClick={()=>{}}  key={i} className="flex flex-col items-start justify-start gap-2 p-4 bg-green-200 border-transparent border-green-200 shadow-md shadow-black w-80 h-fit rounded-3xl " >
+                          <div className="flex gap-2 text-left">
+                            <b>Nickname: </b>
+                            <div>{submission.nickname}</div>
+                          </div>
+                          <div>
+                            <b># of Questions: </b>
+                            <b>{selectedQuiz.questions.length}</b>
+                          </div>
+                          <div className="flex w-full gap-5 text-left ">
+                            <div className="w-1/2">
+                              <b># Correct : </b>
+                              <b>{submission.answers.filter((answer, i) => {
+                                    return answer.evaluation
+                                }).length
+                                }
+                              </b>
+                            </div>
+                            <div className="w-1/2">
+                              <b># Incorrect : </b>
+                              <b>{ selectedQuiz.questions.length - submission.answers.filter((answer, i) => {
+                                    return answer.evaluation
+                                }).length
+                                }
+                              </b>
+                            </div>
+                          </div>
+                          <div>
+                            <b>Total Score: </b>
+                            <b>{submission.totalScore}</b> / {selectedQuiz.totalPoints}
+                          </div>
+                          <div className='flex flex-col w-full gap-2 '>
+                              <div className='flex w-full'>
+                                  <b>Summary: </b>
+                              </div>
+                              <div className='flex flex-wrap items-start justify-start w-full gap-4'>
+                                  {
+                                      submission.answers.map((answer, i) => {
+                                          if(answer.evaluation){
+                                              return <div key={i} className="flex items-center gap-1">{i+1}: <CheckCircleIcon width={25} color={'green'}/> </div>
+                                          }
+                                          return <div key={i} className="flex">{i+1}: <XCircleIcon width={25} color={'red'}/></div>
+                                      })
+                                  }
+                              </div>
+                          </div>
+                        </div>
+                      )
+                      : <p className="text-xl font-bold text-white">
+                        Empty List
+                      </p>}
+                    </div>
                   </div>
                 </div>
                 {/*footer*/}
@@ -754,14 +759,10 @@ const QuizList = () => {
                   <div className="flex items-center gap-5">
                     <div>Status: <b>{selectedQuiz.state}</b></div>
                     <div># Completed: <b>{selectedQuiz.results.noOfCompletion}</b></div>
-                    <div><button onClick={()=>{contextData.toggleCheckLogin()}} className="flex items-center p-2 text-lg font-medium text-gray-200 bg-green-700 rounded-full shadow-sm shadow-black w-fit">
-                        <RefreshIcon width={15}/>
-                      </button>
-                    </div>
                   </div>
                   <div>
                     <button
-                      className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-red-500 rounded shadow outline-none active:bg-red-600 hover:shadow-lg focus:outline-none"
+                      className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-red-700 rounded shadow-md outline-none shadow-black active:bg-red-600 focus:outline-none"
                       type="button"
                       onClick={() => setShowResultsModal(false)}
                     >
@@ -773,7 +774,67 @@ const QuizList = () => {
             </div>
           </div>
         </>}
+        {showAnalyticModal && <>
+          <div className="fixed inset-0 z-50 flex items-center justify-center max-h-screen outline-none focus:outline-none">
+            <div className="relative w-full h-full">
+              {/*content*/}
+              <div className="relative flex flex-col w-full h-full bg-green-200 border-0 outline-none focus:outline-none ">
+                {/*header*/}
+                <div className="flex items-center justify-between p-2">
+                  <h3 className="px-4 text-3xl font-semibold">
+                    Analytics
+                  </h3>
+                  <button
+                    className="float-right p-1 text-3xl font-semibold leading-none border-0 outline-none "
+                    onClick={() => setShowAnalyticModal(false)}
+                  >
+                    <XIcon width={25} />
+                  </button>
+                </div>
+                {/*body*/}
+                <div className="relative flex flex-col items-start justify-start h-full max-h-full overflow-y-auto bg-gradient-to-r from-emerald-700 to-green-700">
+                  {/* CONTROLS */}
+                  <div className="flex flex-col items-center justify-start w-full gap-6 px-2 py-5">
+                    {/* ITEMS */}
+                    <div className="flex flex-wrap items-start justify-center gap-3 ">
+                      {/* CARD */}
+                      <div className="flex flex-col items-start justify-start gap-2 p-4 bg-green-200 border-transparent border-green-200 shadow-md shadow-black w-fit h-fit rounded-3xl " >
+                        {/* TITLE */}
+                        <div className="text-3xl font-bold">
+                          
+                        </div>
+                        <div className="flex gap-2 text-left">
+                          <b>Nickname: </b>
+                          <div>{}</div>
+                        </div>
+                        <div>
+                          <b># of Questions: </b>
+                        </div>
+                        <div>
+                          <b>Total Score: </b>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/*footer*/}
+                <div className="flex items-center justify-end p-2 border-t border-solid rounded-b border-slate-200">
+                  <div>
+                    <button
+                      className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear bg-red-700 rounded shadow-md outline-none shadow-black active:bg-red-600 focus:outline-none"
+                      type="button"
+                      onClick={() => setShowAnalyticModal(false)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>}
     </>);
 }
+
 
 export default QuizList;
