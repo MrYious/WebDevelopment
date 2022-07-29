@@ -1,3 +1,4 @@
+import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { CheckCircleIcon, PlusCircleIcon, RefreshIcon, XCircleIcon } from "@heroicons/react/outline";
 import { PlusIcon, XIcon } from "@heroicons/react/solid";
 import { useContext, useEffect, useState } from "react";
@@ -17,6 +18,7 @@ const QuizList = () => {
     const [description, setDescription] = useState('');
     const [filter, setFilter] = useState('');
     const [filterResults, setFilterResults] = useState('');
+    const [analytics, setAnalytics] = useState({});
 
     const [showNewQuizModal, setShowNewQuizModal] = useState(false);
     const [showQuizInfoModal, setShowQuizInfoModal] = useState(false);
@@ -370,6 +372,34 @@ const QuizList = () => {
       })
     }
 
+    const handleGenerateAnalytics = () => {
+      const bar = selectedQuiz.questions.map((question, i) => {
+        //filter submissions where users are correct for this question
+        let correct = selectedQuiz.submission.filter((e) => {
+          return question.id === e.answers[i].id && e.answers[i].evaluation
+        }).length
+        let incorrect = selectedQuiz.submission.filter((e, idx) => {
+          return question.id === e.answers[i].id && !e.answers[i].evaluation
+        }).length
+
+        return {
+          Name: 'Q' + (i+1),
+          Correct: correct,
+          Incorrect: incorrect,
+        }
+      })
+      console.log(bar)
+      const ranking = selectedQuiz.submission.map((user) => {
+        return {
+          name: user.nickname,
+          score: user.totalScore,
+          correctAnswer: user.answers.filter((answer, i) => {return answer.evaluation}).length
+        }
+      })
+      console.log(ranking)
+      setAnalytics({...analytics, bar, ranking })
+    }
+
     return (<>
         <div className="flex flex-col items-center justify-start w-full h-full gap-2 py-4 overflow-y-auto">
             <div className="flex items-center justify-between w-4/5 gap-5">
@@ -688,7 +718,10 @@ const QuizList = () => {
                         <b className="text-lg text-white">Search: </b>
                         <input type={"text"} value={filterResults} onChange={(e)=>{setFilterResults(e.target.value)}} className="p-2 rounded-full shadow-md shadow-black" placeholder="Enter a name"/>
                       </div>
-                      <div onClick={()=> {setShowAnalyticModal(true)}} className="flex items-center px-4 py-2 text-lg font-medium text-gray-900 bg-green-100 rounded-full shadow-md cursor-pointer shadow-black w-fit">
+                      <div onClick={()=> {
+                        handleGenerateAnalytics()
+                        setShowAnalyticModal(true)
+                      }} className="flex items-center px-4 py-2 text-lg font-medium text-gray-900 bg-green-100 rounded-full shadow-md cursor-pointer shadow-black w-fit">
                         Analytics
                       </div>
                     </div>
@@ -798,20 +831,54 @@ const QuizList = () => {
                     {/* ITEMS */}
                     <div className="flex flex-wrap items-start justify-center gap-3 ">
                       {/* CARD */}
-                      <div className="flex flex-col items-start justify-start gap-2 p-4 bg-green-200 border-transparent border-green-200 shadow-md shadow-black w-fit h-fit rounded-3xl " >
+                      <div className="flex flex-col items-center justify-center gap-2 p-4 bg-green-200 border-transparent border-green-200 shadow-md shadow-black w-fit h-fit rounded-3xl " >
                         {/* TITLE */}
-                        <div className="text-3xl font-bold">
-                          
+                        <div className="text-xl font-bold">
+                          Performance of participants in each question
                         </div>
-                        <div className="flex gap-2 text-left">
-                          <b>Nickname: </b>
-                          <div>{}</div>
+                        <BarChart
+                          width={900}
+                          height={430}
+                          data={analytics.bar}
+                          margin={{
+                            top: 20,
+                            right: 30,
+                            left: 20,
+                            bottom: 15,
+                          }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="Name" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="Correct" stackId="a" fill="#232f6b" />
+                          <Bar dataKey="Incorrect" stackId="a" fill="#d63838" />
+                        </BarChart>
+                      </div>
+                      {/* CARD */}
+                      <div className="flex flex-col items-center justify-center gap-2 p-4 bg-green-200 border-transparent border-green-200 shadow-md shadow-black w-fit h-fit rounded-3xl " >
+                        {/* TITLE */}
+                        <div className="px-16 text-xl font-bold">
+                          Ranking of participants
                         </div>
-                        <div>
-                          <b># of Questions: </b>
-                        </div>
-                        <div>
-                          <b>Total Score: </b>
+                        <div className='flex flex-col w-full gap-2 text-left '>
+                          <div className='flex text-center'>
+                            <b className='w-1/4'>Rank</b>
+                            <b className='w-1/4'>Name</b>
+                            <b className='w-1/4'>Points</b>
+                            <b className='w-1/4'>Question</b>
+                          </div>
+                          {analytics.ranking.sort((a, b) => b.score - a.score).map((user, i) => {
+                            return <>
+                              <div key={i} className='flex text-center'>
+                                <b className='w-1/4'>{i+1}</b>
+                                <span className='w-1/4'>{user.name}</span>
+                                <span className='w-1/4'>{user.score}</span>
+                                <span className='w-1/4'>{user.correctAnswer} / {selectedQuiz.questions.length}</span>
+                              </div>
+                            </>
+                          })}
                         </div>
                       </div>
                     </div>
