@@ -8,7 +8,7 @@ import { UserContext } from "../context/UserContext";
 import { customAlphabet } from 'nanoid'
 import nextId from "react-id-generator";
 
-// TODO QUESTION SAVED CARD IF ELSE
+// TODO IMPLEMENT QUESTION TIMER PER QUESTION AND TRIGGER NEXT AUTOMATICALLY
 
 
 const QuizList = () => {
