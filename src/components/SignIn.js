@@ -48,7 +48,7 @@ const SignIn = () => {
     return (<>
         <div className="flex flex-col items-center justify-center w-full h-full gap-5 px-16 py-10 bg-gray-300 rounded-3xl">
             <div className="flex flex-col items-center justify-center">
-                <UserCircleIcon className="w-20 my-2 text-orange-600"/>
+                <UserCircleIcon className="w-20 my-2 text-green-900"/>
                 <div className="text-3xl ">
                     Welcome again!
                 </div>
@@ -63,14 +63,14 @@ const SignIn = () => {
                 <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center w-full gap-3">
                     <input className="w-full px-2 py-1 border-2 border-gray-400 border-solid rounded-sm bg-slate-100" maxLength="50" value={email} onChange={(e)=> {setEmail(e.target.value)}} type={"email"} placeholder="Email" autoComplete="email" required/>
                     <input className="w-full px-2 py-1 border-2 border-gray-400 border-solid rounded-sm bg-slate-100" maxLength="15" value={password} onChange={(e)=> {setPassword(e.target.value)}} type={"password"} placeholder="Password" autoComplete="current-password"  required/>
-                    <button type="submit" className="w-full py-2 font-bold tracking-wide text-gray-300 bg-orange-600 rounded-sm">
+                    <button type="submit" className="w-full py-2 font-bold tracking-wide text-gray-200 bg-green-900 rounded-sm">
                         Sign In
                     </button>
                 </form>
             </div>
             <div className="tracking-normal">
                 <span>Not yet a member? </span>
-                <Link to='/home/user/new' className="text-orange-600 ">
+                <Link to='/home/user/new' className="text-red-600 ">
                     Sign up now
                 </Link>
             </div>

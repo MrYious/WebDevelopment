@@ -7,9 +7,9 @@ const Hero = () => {
         <div className="flex items-center justify-between w-full h-full gap-10 px-32 bg-gradient-to-r from-emerald-800 to-green-800">
             <div className="flex flex-col w-3/5 gap-5">
                 <div className="text-4xl italic font-medium leading-relaxed text-white">
-                    SmartQ is a flexible quiz maker for work, education or fun. Easily create, share and analyze quizzes with everyone.
+                    SmartQ is a flexible quiz maker for work, education or fun. Easily create, share and complete quizzes with everyone.
                 </div>
-                <Link to={'/'} className="flex items-center gap-1 px-8 py-4 text-3xl font-medium text-gray-200 rounded-full bg-slate-900 w-fit">
+                <Link to={'/'} className="flex items-center gap-1 px-8 py-4 text-3xl font-medium shadow-md shadow-black text-gray-200 rounded-full bg-[#062614] w-fit">
                     Join a quiz
                 </Link>
             </div>

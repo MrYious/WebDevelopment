@@ -58,7 +58,7 @@ const SignUp = () => {
     return (<>
         <div className="flex flex-col items-center justify-center w-full h-full gap-3 px-16 py-6 bg-gray-300 rounded-3xl">
             <div className="flex flex-col items-center justify-center">
-                <UserCircleIcon className="w-20 my-2 text-orange-600"/>
+                <UserCircleIcon className="w-20 my-2 text-green-900"/>
                 <div className="text-3xl ">
                     Hello new guy!
                 </div>
@@ -75,14 +75,14 @@ const SignUp = () => {
                     <input className="w-full px-2 py-1 border-2 border-gray-400 border-solid rounded-sm bg-slate-100" value={email} onChange={(e)=> {setEmail(e.target.value)}} type={"email"} maxLength="50" placeholder="Email" required autoComplete="email"/>
                     <input className="w-full px-2 py-1 border-2 border-gray-400 border-solid rounded-sm bg-slate-100" value={password} onChange={(e)=> {setPassword(e.target.value)}} type={"password"} maxLength="15" placeholder="Password" required autoComplete="new-password"/>
                     <input className="w-full px-2 py-1 border-2 border-gray-400 border-solid rounded-sm bg-slate-100" value={confirmPassword} onChange={(e)=> {setConfirmPassword(e.target.value)}} type={"password"} maxLength="15" placeholder="Confirm Password" required autoComplete="new-password"/>
-                    <button type="submit" className="w-full py-2 font-bold tracking-wide text-gray-300 bg-orange-600 rounded-sm">
+                    <button type="submit" className="w-full py-2 font-bold tracking-wide text-gray-200 bg-green-900 rounded-sm">
                         Sign Up
                     </button>
                 </form>
             </div>
             <div className="tracking-normal">
                 <span>Already a member? </span>
-                <Link to='/home/user' className="text-orange-600 ">
+                <Link to='/home/user' className="text-red-600 ">
                     Just sign in
                 </Link>
             </div>

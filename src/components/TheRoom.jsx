@@ -785,12 +785,12 @@ const TheRoom = () => {
                                 {
                                     userData.answers.map((answer, i) => {
                                         if(answer.evaluation){
-                                            return <div>{i+1}: Correct </div>
+                                            return <div  key={i}>{i+1}: Correct </div>
                                         }
-                                        return <div>{i+1}: Wrong </div>
+                                        return <div  key={i}>{i+1}: Wrong </div>
                                     })
                                 }
-                        </div>
+                            </div>
                         </div>
                     </div>
                     {/*footer*/}

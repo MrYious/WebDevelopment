@@ -29,7 +29,7 @@ const Features = () => {
                 </div>
                 <div className="flex items-center justify-start w-5/12 gap-5 p-3 mx-5">
                     <img src={icon1} alt="icon1" width={"15%"}/>
-                    <div className="text-2xl font-extrabold ">Real-time Results and Analytics</div>
+                    <div className="text-2xl font-extrabold ">Results and Analytics</div>
                 </div>
                 <div className="flex items-center justify-start w-5/12 gap-5 p-3 mx-5">
                     <img src={icon5} alt="icon5" width={"15%"}/>

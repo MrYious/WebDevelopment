@@ -138,13 +138,13 @@ const Quiz = () => {
                                             <div className='py-2 text-xl' >
                                             { isStarted
                                                     ? <>The party started!</>
-                                                    : <>The crew is waiting!</>
+                                                    : <>Are you ready challenger?!</>
                                                 }
                                             </div>
                                             <div className='py-2 text-xl' >
                                                 { isStarted
                                                     ? <><b>{nickname}</b>, wanna catch up?</>
-                                                    : <>Ready to join the party, <b>{nickname}</b>?</>
+                                                    : <>Ready, <b>{nickname}</b>?</>
                                                 }
                                             </div>
                                             <button className='w-full py-2 text-xl font-bold text-gray-200 bg-gray-600 rounded-lg' onClick={handleChangeNickname}>

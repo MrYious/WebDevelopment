@@ -38,7 +38,7 @@ const Host = () => {
                 <div className="text-xl ">
                     Hello, <b>{ contextData.user.nickname ? contextData.user.nickname : "Guest"}</b>
                 </div>
-                <button onClick={handleSignOut} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-red-600 rounded-full w-fit">
+                <button onClick={handleSignOut} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-200 bg-[#c22626] shadow-sm shadow-black rounded-full w-fit">
                     Sign out
                 </button>
             </div>

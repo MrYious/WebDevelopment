@@ -19,10 +19,10 @@ const EnterRoom = () => {
         }
     };
     return (<>
-        <div className='flex flex-col gap-3 p-4 text-center bg-gray-100 rounded-lg w-96'>
+        <div className='flex flex-col gap-3 p-4 text-center bg-gray-100 rounded-lg shadow-md w-96 shadow-black'>
             { message && <div> {message} </div>}
             <input className='py-2 text-xl text-center bg-gray-100 border-2 border-gray-700 rounded-lg' maxLength={7} type={"text"} placeholder={"Room Code"} value={roomCode} onChange={e => setRoomCode(e.target.value)}/>
-            <button className='w-full py-2 text-xl font-bold text-gray-200 bg-orange-700 rounded-lg' onClick={handleClickEnter}>
+            <button className='w-full py-2 text-xl font-bold text-gray-100 bg-green-800 rounded-lg' onClick={handleClickEnter}>
                 ENTER
             </button>
         </div>

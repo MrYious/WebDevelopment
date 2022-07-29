@@ -30,15 +30,15 @@ const Home = () => {
         {/* LINKS */}
         <div className="flex items-center justify-end w-5/6 h-full gap-5 text-white">
           {links.map((link, i) => {
-            return <Link to={link.to} key={i} className="flex items-center gap-1 px-2 py-2 text-lg font-medium rounded-full w-fit">
+            return <Link to={link.to} key={i} className="flex items-center gap-1 px-3 py-2 text-lg font-medium hover:bg-[#0c4023] rounded-xl w-fit">
               {link.name}
             </Link>
           })}
           {contextData.isLoggedIn
-            ? <Link to={'/host'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-100 bg-gray-900 rounded-full w-fit">
+            ? <Link to={'/host'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-100 bg-[#082b17] rounded-full w-fit shadow-sm shadow-black">
                 {contextData.user.nickname}
               </Link>
-            : <Link to={'user/'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-100 bg-gray-900 rounded-full w-fit">
+            : <Link to={'user/'} className="flex items-center gap-1 px-4 py-2 text-lg font-medium text-gray-100 bg-[#082b17] rounded-full w-fit shadow-sm shadow-black">
                 Sign In
               </Link>
           }
