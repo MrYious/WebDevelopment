@@ -1,20 +1,25 @@
-import { Link, Outlet, useOutletContext, useParams } from 'react-router-dom';
+import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/outline';
 import { useContext, useEffect, useState } from "react";
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 
 import { ArrowCircleRightIcon } from '@heroicons/react/solid';
 import Axios from '../service/Axios';
 import { UserContext } from "../context/UserContext";
 
-//  TODO read users click on choices CHECK
-//  next => check and show correct answer TODO => save data to userData
 //  end => save to database quiz submissions
 
+// TODO show user his score => redirect to home page
+
+// TODO admin view: results and analytics page
+
+
+
 const TheRoom = () => {
-    console.log("Render")
 
     let  {roomID, userID}  = useParams();
     const [quizData, setQuizData] = useOutletContext();
     const contextData = useContext(UserContext)
+    console.log("Render", contextData)
 
     const resetChoices = {
         option: {
@@ -23,39 +28,31 @@ const TheRoom = () => {
             B: false,
             C: false,
             D: false,
+            multi: ['', '', '', '']
         },
         text: '',
         number: '',
     }
-
+    const resetUserData = {
+        nickname: userID,
+        userID: contextData.user._id ? contextData.user._id : '',
+        totalScore: 0,
+        answers: [],
+    }
+    const navigate = useNavigate();
+    const [showFinalResultModal, setShowFinalResultModal] = useState(false)
     const [currentNumber, setCurrentNumber] = useState(1)
     const [selectChoices, setSelectChoices] = useState(resetChoices)
     const [checkAnswer, setCheckAnswer] = useState(false)
-    const [answerResult, setAnswerResult] = useState({
-        tf: {
-            answer: "",
-            correctAnswer: ""
-        }
-    })
-    const [userData, setUserData] = useState({
-        nickname: "",
-        userID: "",
-        totalScore: 0,
-        answers: [],
-    })
+    const [message, setMessage] = useState('')
+    const [error, setError] = useState(false)
 
-    const data = {
-        id: "",
-        format: "",
-        userAnswer: [],
-        correctAnswer: [],
-        evaluation: true,
-        score: 0,
-    }
+    const [userData, setUserData] = useState(resetUserData)
 
     useEffect(() => {
-        console.log("Room Effect", quizData)
-    }, [])
+        console.log("Room Effect Quiz Data", quizData)
+        console.log("Room Effect User Data", userData)
+    }, [userData])
 
     const handleCheckResults = (type, val) => {
         if(checkAnswer){
@@ -145,12 +142,43 @@ const TheRoom = () => {
                     }
                     break
                 case "multiple":
-                    if(quizData.questions[currentNumber-1].answer[0] === selectChoices.number){
-                        // CORRECT ANSWER
-                        return 'border-green-700 '
+                    const answers = selectChoices.option.multi.filter((e) => {
+                        return e
+                    })
+                    // Check if same length or not
+                    if(quizData.questions[currentNumber-1].answer.length === answers.length){
+                        // SAME LENGTH
+                        // Check if all correctAnswers are the same as userAnswer
+                        const result = quizData.questions[currentNumber-1].answer.filter((e) => {
+                            return !answers.includes(e)
+                        })
+                        console.log('Result', result)
+                        if(result.length === 0){
+                            //CORRECT
+                            // Check if option is included in the correct answers
+                            return selectChoices.option.multi.includes(val)
+                                ? 'bg-green-800'
+                                : 'bg-gray-800'
+                        }else{
+                            //INCORRECT
+                            // Check if option is included in correct answers
+                            return quizData.questions[currentNumber-1].answer.includes(val)
+                                ? answers.includes(val) //Included - Check if selected
+                                    ? 'bg-green-800'       //Selected
+                                    : 'bg-yellow-800'      //NotSelected
+                                : answers.includes(val) //Not Included - Check if selected
+                                    ? 'bg-red-800'         //Selected
+                                    : 'bg-gray-800'
+                        }
                     }else{
-                        // INCORRECT ANSWER
-                        return 'border-red-700 '
+                        //INCORRECT LENGTH - INCORRECT
+                        return quizData.questions[currentNumber-1].answer.includes(val)
+                            ? answers.includes(val) //Included - Check if selected
+                                ? 'bg-green-800'       //Selected
+                                : 'bg-yellow-800'      //NotSelected
+                            : answers.includes(val) //Not Included - Check if selected
+                                ? 'bg-red-800'         //Selected
+                                : 'bg-gray-800'
                     }
                 case "text":
                     if(quizData.questions[currentNumber-1].answer[0].toLowerCase() === selectChoices.text.toLowerCase()){
@@ -169,7 +197,7 @@ const TheRoom = () => {
                         return 'border-red-700 '
                     }
                 default:
-                    return 
+                    return
             }
         }else{
             switch(type){
@@ -236,24 +264,271 @@ const TheRoom = () => {
         }
     }
 
+    const handleCheckAnswer = () => {
+        switch(quizData.questions[currentNumber-1].format){
+            case "True or False":
+                if(quizData.questions[currentNumber-1].answer[0] === selectChoices.option.tf){
+                    setMessage("Correct");
+                    const answer = {
+                        id: quizData.questions[currentNumber-1].id,
+                        format: quizData.questions[currentNumber-1].format,
+                        userAnswer: [selectChoices.option.tf],
+                        correctAnswer: quizData.questions[currentNumber-1].answer,
+                        evaluation: true,
+                        score: quizData.questions[currentNumber-1].points,
+                    }
+                    setUserData({...userData, totalScore: userData.totalScore + quizData.questions[currentNumber-1].points, answers: [...userData.answers, answer]})
+                }else{
+                    setMessage("Incorrect");
+                    setError(true);
+                    const answer = {
+                        id: quizData.questions[currentNumber-1].id,
+                        format: quizData.questions[currentNumber-1].format,
+                        userAnswer: [selectChoices.option.tf],
+                        correctAnswer: quizData.questions[currentNumber-1].answer,
+                        evaluation: false,
+                        score: 0,
+                    }
+                    setUserData({...userData, answers: [...userData.answers, answer]})
+                }
+                setCheckAnswer(true);
+                break
+            case "Multiple Choice - Single":
+                if(selectChoices.option.A){
+                    // Is A the correct answer?
+                    if(quizData.questions[currentNumber-1].answer[0] === selectChoices.option.A){
+                        // CORRECT ANSWER
+                        setMessage("Correct");
+                        const answer = {
+                            id: quizData.questions[currentNumber-1].id,
+                            format: quizData.questions[currentNumber-1].format,
+                            userAnswer: [selectChoices.option.A],
+                            correctAnswer: quizData.questions[currentNumber-1].answer,
+                            evaluation: true,
+                            score: quizData.questions[currentNumber-1].points,
+                        }
+                        setUserData({...userData, totalScore: userData.totalScore + quizData.questions[currentNumber-1].points, answers: [...userData.answers, answer]})
+                    }else{
+                        // INCORRECT ANSWER
+                        setMessage("The correct answer is: " + quizData.questions[currentNumber-1].answer[0]);
+                        setError(true);
+                        const answer = {
+                            id: quizData.questions[currentNumber-1].id,
+                            format: quizData.questions[currentNumber-1].format,
+                            userAnswer: [selectChoices.option.A],
+                            correctAnswer: quizData.questions[currentNumber-1].answer,
+                            evaluation: false,
+                            score: 0,
+                        }
+                        setUserData({...userData, answers: [...userData.answers, answer]})
+                    }
+                    setCheckAnswer(true);
+                }else if(selectChoices.option.B){
+                    // Is A the correct answer?
+                    if(quizData.questions[currentNumber-1].answer[0] === selectChoices.option.B){
+                        // CORRECT ANSWER
+                        setMessage("Correct");
+                        const answer = {
+                            id: quizData.questions[currentNumber-1].id,
+                            format: quizData.questions[currentNumber-1].format,
+                            userAnswer: [selectChoices.option.B],
+                            correctAnswer: quizData.questions[currentNumber-1].answer,
+                            evaluation: true,
+                            score: quizData.questions[currentNumber-1].points,
+                        }
+                        setUserData({...userData, totalScore: userData.totalScore + quizData.questions[currentNumber-1].points, answers: [...userData.answers, answer]})
+                    }else{
+                        // INCORRECT ANSWER
+                        setMessage("The correct answer is: " + quizData.questions[currentNumber-1].answer[0]);
+                        setError(true);
+                        const answer = {
+                            id: quizData.questions[currentNumber-1].id,
+                            format: quizData.questions[currentNumber-1].format,
+                            userAnswer: [selectChoices.option.B],
+                            correctAnswer: quizData.questions[currentNumber-1].answer,
+                            evaluation: false,
+                            score: 0,
+                        }
+                        setUserData({...userData, answers: [...userData.answers, answer]})
+                    }
+                    setCheckAnswer(true);
+                }else if(selectChoices.option.C){
+                    // Is A the correct answer?
+                    if(quizData.questions[currentNumber-1].answer[0] === selectChoices.option.C){
+                        // CORRECT ANSWER
+                        setMessage("Correct");
+                        const answer = {
+                            id: quizData.questions[currentNumber-1].id,
+                            format: quizData.questions[currentNumber-1].format,
+                            userAnswer: [selectChoices.option.C],
+                            correctAnswer: quizData.questions[currentNumber-1].answer,
+                            evaluation: true,
+                            score: quizData.questions[currentNumber-1].points,
+                        }
+                        setUserData({...userData, totalScore: userData.totalScore + quizData.questions[currentNumber-1].points, answers: [...userData.answers, answer]})
+                    }else{
+                        // INCORRECT ANSWER
+                        setMessage("The correct answer is: " + quizData.questions[currentNumber-1].answer[0]);
+                        setError(true);
+                        const answer = {
+                            id: quizData.questions[currentNumber-1].id,
+                            format: quizData.questions[currentNumber-1].format,
+                            userAnswer: [selectChoices.option.C],
+                            correctAnswer: quizData.questions[currentNumber-1].answer,
+                            evaluation: false,
+                            score: 0,
+                        }
+                        setUserData({...userData, answers: [...userData.answers, answer]})
+                    }
+                    setCheckAnswer(true);
+                }else if(selectChoices.option.D){
+                    // Is A the correct answer?
+                    if(quizData.questions[currentNumber-1].answer[0] === selectChoices.option.D){
+                        // CORRECT ANSWER
+                        setMessage("Correct");
+                        const answer = {
+                            id: quizData.questions[currentNumber-1].id,
+                            format: quizData.questions[currentNumber-1].format,
+                            userAnswer: [selectChoices.option.D],
+                            correctAnswer: quizData.questions[currentNumber-1].answer,
+                            evaluation: true,
+                            score: quizData.questions[currentNumber-1].points,
+                        }
+                        setUserData({...userData, totalScore: userData.totalScore + quizData.questions[currentNumber-1].points, answers: [...userData.answers, answer]})
+                    }else{
+                        // INCORRECT ANSWER
+                        setMessage("The correct answer is: " + quizData.questions[currentNumber-1].answer[0]);
+                        setError(true);
+                        const answer = {
+                            id: quizData.questions[currentNumber-1].id,
+                            format: quizData.questions[currentNumber-1].format,
+                            userAnswer: [selectChoices.option.D],
+                            correctAnswer: quizData.questions[currentNumber-1].answer,
+                            evaluation: false,
+                            score: 0,
+                        }
+                        setUserData({...userData, answers: [...userData.answers, answer]})
+                    }
+                    setCheckAnswer(true);
+                }else{
+                    setMessage("Select an answer");
+                    setError(true);
+                }
+                break
+            case "Multiple Choice - Multiple":
+                const answers = selectChoices.option.multi.filter((e) => {
+                    return e
+                })
+                const result = quizData.questions[currentNumber-1].answer.filter((e) => {
+                    return !answers.includes(e)
+                })
+                console.log("RESULT 123", result)
+                if(result.length === 0 && quizData.questions[currentNumber-1].answer.length === answers.length){
+                    //CORRECT
+                    //Check if option is included in the correct answers
+                    setMessage("Correct");
+                    const answer = {
+                        id: quizData.questions[currentNumber-1].id,
+                        format: quizData.questions[currentNumber-1].format,
+                        userAnswer: answers,
+                        correctAnswer: quizData.questions[currentNumber-1].answer,
+                        evaluation: true,
+                        score: quizData.questions[currentNumber-1].points,
+                    }
+                    setUserData({...userData, totalScore: userData.totalScore + quizData.questions[currentNumber-1].points, answers: [...userData.answers, answer]})
+                }else{
+                    //INCORRECT
+                    //Check if option is included in correct answers
+                    setMessage("The correct answers are: " + quizData.questions[currentNumber-1].answer.toString());
+                    setError(true);
+                    const answer = {
+                        id: quizData.questions[currentNumber-1].id,
+                        format: quizData.questions[currentNumber-1].format,
+                        userAnswer: answers,
+                        correctAnswer: quizData.questions[currentNumber-1].answer,
+                        evaluation: false,
+                        score: 0,
+                    }
+                    setUserData({...userData, answers: [...userData.answers, answer]})
+                }
+                setCheckAnswer(true);
+                break
+            case "Identification":
+                if(quizData.questions[currentNumber-1].answer[0] === selectChoices.text){
+                    setMessage("Correct");
+                    const answer = {
+                        id: quizData.questions[currentNumber-1].id,
+                        format: quizData.questions[currentNumber-1].format,
+                        userAnswer: [selectChoices.text],
+                        correctAnswer: quizData.questions[currentNumber-1].answer,
+                        evaluation: true,
+                        score: quizData.questions[currentNumber-1].points,
+                    }
+                    setUserData({...userData, totalScore: userData.totalScore + quizData.questions[currentNumber-1].points, answers: [...userData.answers, answer]})
+                }else{
+                    setMessage("The correct answer is: " + quizData.questions[currentNumber-1].answer[0]);
+                    setError(true);
+                    const answer = {
+                        id: quizData.questions[currentNumber-1].id,
+                        format: quizData.questions[currentNumber-1].format,
+                        userAnswer: [selectChoices.text],
+                        correctAnswer: quizData.questions[currentNumber-1].answer,
+                        evaluation: false,
+                        score: 0,
+                    }
+                    setUserData({...userData, answers: [...userData.answers, answer]})
+                }
+                setCheckAnswer(true);
+                break
+            case "Numerical":
+                if(quizData.questions[currentNumber-1].answer[0] === selectChoices.number){
+                    setMessage("Correct");const answer = {
+                        id: quizData.questions[currentNumber-1].id,
+                        format: quizData.questions[currentNumber-1].format,
+                        userAnswer: [selectChoices.number],
+                        correctAnswer: quizData.questions[currentNumber-1].answer,
+                        evaluation: true,
+                        score: quizData.questions[currentNumber-1].points,
+                    }
+                    setUserData({...userData, totalScore: userData.totalScore + quizData.questions[currentNumber-1].points, answers: [...userData.answers, answer]})
+                }else{
+                    setMessage("The correct answer is: " + quizData.questions[currentNumber-1].answer[0]);
+                    setError(true);
+                    const answer = {
+                        id: quizData.questions[currentNumber-1].id,
+                        format: quizData.questions[currentNumber-1].format,
+                        userAnswer: [selectChoices.number],
+                        correctAnswer: quizData.questions[currentNumber-1].answer,
+                        evaluation: false,
+                        score: 0,
+                    }
+                    setUserData({...userData, answers: [...userData.answers, answer]})
+                }
+                setCheckAnswer(true);
+                break
+            default:
+                break
+        }
+    }
+
     const handleNext = () => {
         if(!checkAnswer){
             //CHECK ANSWER HERE
-            alert('Check')
-            setCheckAnswer(true);
+            handleCheckAnswer()
             console.log("Answer", selectChoices)
             console.log("Correct Answer", quizData.questions[currentNumber - 1].answer[0])
         }else{
             //GO NEXT QUESTION AND RESET
             if(currentNumber + 1 <= quizData.questions.length){
-                alert('Next Item')
                 setSelectChoices(resetChoices)
-                setCurrentNumber(currentNumber + 1);
-                setCheckAnswer(false);
+                setCurrentNumber(currentNumber + 1)
+                setCheckAnswer(false)
+                setError(false);
+                setMessage("");
             }else{
                 // END
-                alert('END')
                 console.log("END");
+                handleShowResults()
             }
         }
     }
@@ -322,7 +597,13 @@ const TheRoom = () => {
                     <div className='flex flex-wrap items-center justify-center w-full gap-5 text-xl '>
                         <div className={`flex w-2/5 p-5 text-white border-2 border-transparent rounded-full shadow-md cursor-pointer shadow-black hover:border-white ${handleCheckResults('multiple', quizData.questions[currentNumber-1].A)}`} onClick={() => {
                             if(!checkAnswer){
-                                setSelectChoices({...selectChoices, option: {...selectChoices.option, A: !selectChoices.option.A}})}
+                                const ans = selectChoices.option.multi.map((e, i) => {
+                                    if(i === 0){
+                                        return e ? '' : quizData.questions[currentNumber-1].A
+                                    }
+                                    return e
+                                })
+                                setSelectChoices({...selectChoices, option: {...selectChoices.option, A: !selectChoices.option.A, multi: [...ans]}})}
                             }
                         }>
                             <div className='font-bold'>A</div>
@@ -330,7 +611,13 @@ const TheRoom = () => {
                         </div>
                         <div className={`flex w-2/5 p-5 text-white border-2 border-transparent rounded-full shadow-md cursor-pointer shadow-black hover:border-white ${handleCheckResults('multiple', quizData.questions[currentNumber-1].B)}`} onClick={() => {
                             if(!checkAnswer){
-                                setSelectChoices({...selectChoices, option: {...selectChoices.option, B: !selectChoices.option.B}})}
+                                const ans = selectChoices.option.multi.map((e, i) => {
+                                    if(i === 1){
+                                        return e ? '' : quizData.questions[currentNumber-1].B
+                                    }
+                                    return e
+                                })
+                                setSelectChoices({...selectChoices, option: {...selectChoices.option, B: !selectChoices.option.B, multi: [...ans]}})}
                             }
                         }>
                             <div className='font-bold'>B</div>
@@ -338,7 +625,13 @@ const TheRoom = () => {
                         </div>
                         <div className={`flex w-2/5 p-5 text-white border-2 border-transparent rounded-full shadow-md cursor-pointer shadow-black hover:border-white ${handleCheckResults('multiple', quizData.questions[currentNumber-1].C)}`} onClick={() => {
                             if(!checkAnswer){
-                                setSelectChoices({...selectChoices, option: {...selectChoices.option, C: !selectChoices.option.C}})}
+                                const ans = selectChoices.option.multi.map((e, i) => {
+                                    if(i === 2){
+                                        return e ? '' : quizData.questions[currentNumber-1].C
+                                    }
+                                    return e
+                                })
+                                setSelectChoices({...selectChoices, option: {...selectChoices.option, C: !selectChoices.option.C, multi: [...ans]}})}
                             }
                         }>
                             <div className='font-bold'>C</div>
@@ -346,7 +639,13 @@ const TheRoom = () => {
                         </div>
                         <div className={`flex w-2/5 p-5 text-white border-2 border-transparent rounded-full shadow-md cursor-pointer shadow-black hover:border-white ${handleCheckResults('multiple', quizData.questions[currentNumber-1].D)}`} onClick={() => {
                             if(!checkAnswer){
-                                setSelectChoices({...selectChoices, option: {...selectChoices.option, D: !selectChoices.option.D}})}
+                                const ans = selectChoices.option.multi.map((e, i) => {
+                                    if(i === 3){
+                                        return e ? '' : quizData.questions[currentNumber-1].D
+                                    }
+                                    return e
+                                })
+                                setSelectChoices({...selectChoices, option: {...selectChoices.option, D: !selectChoices.option.D, multi: [...ans]}})}
                             }
                         }>
                             <div className='font-bold'>D</div>
@@ -375,6 +674,27 @@ const TheRoom = () => {
         }
     }
 
+    const handleSubmit = () => {
+        Axios.put('http://localhost:5000/quiz/user', {
+          id: quizData._id,
+          userData: userData
+        })
+        .then(function (response) {
+            // SUCCESS
+            setShowFinalResultModal(false)
+            setUserData(resetUserData)
+            navigate('/');
+        })
+        .catch(function (error) {
+            // FAIL
+            console.log("Cant save data", error)
+        });
+    }
+
+    const handleShowResults = () => {
+        setShowFinalResultModal(true)
+    }
+
     return (<>
         <div className='flex flex-col items-center justify-center h-screen bg-gray-300'>
             {/* HEADER */}
@@ -394,11 +714,17 @@ const TheRoom = () => {
                     </div>
                 </div>
                 {/* CONTENT */}
-                <div className='flex flex-col items-center justify-start w-full h-full gap-12'>
+                <div className='flex flex-col items-center justify-start w-full h-full gap-10'>
                     <div className='flex items-center justify-center w-full py-5 text-3xl text-white bg-gray-700 rounded-full shadow-md px-7 h-2/5 shadow-black'>
                         {quizData.questions[currentNumber - 1].text}
                     </div>
                     {handleSelectChoices()}
+                    {message &&
+                        <div className={`flex py-3 px-3 gap-2 text-lg rounded-full shadow-sm shadow-black ${error ? "bg-red-500 text-white" : "bg-green-500"}`}>
+                            {error ? <ExclamationCircleIcon width={25}/> : <CheckCircleIcon width={25}/>}
+                            {message}
+                        </div>
+                    }
                 </div>
                 {/* RIGHT */}
                 <div className="flex flex-col items-center w-1/6 font-bold">
@@ -421,6 +747,68 @@ const TheRoom = () => {
                 </div>
             </div>
         </div>
+        { showFinalResultModal && <>
+            <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
+                <div className="relative w-1/4 max-w-3xl mx-auto my-6">
+                {/*content*/}
+                <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none">
+                    {/*header*/}
+                    <div className="flex items-center justify-between p-2 border-b border-solid rounded-t border-slate-200 ">
+                    <h3 className="text-xl font-semibold ">
+                        Congratulations
+                    </h3>
+                    <button
+                        className="float-right p-1 text-3xl font-semibold leading-none border-0 outline-none "
+                        onClick={() => setShowFinalResultModal(false)}
+                    >
+                        <span className="block w-6 h-6 text-2xl text-black bg-transparent outline-none focus:outline-none">
+                        ×
+                        </span>
+                    </button>
+                    </div>
+                    {/*body*/}
+                    <div className="relative flex flex-col gap-5 p-6 ">
+                        <div>
+                            <div>
+                                Thank you for answering the quiz!
+                            </div>
+                            <div>
+                                You have achieved <b>{userData.totalScore}</b> out of <b>{quizData.totalPoints} points</b>
+                            </div>
+                        </div>
+                        <div className='flex flex-col gap-2'>
+                            <div className='flex justify-between'>
+                                <b>Summary: </b>
+                                <b>{userData.answers.filter(e => {return e.evaluation}).length} / {quizData.questions.length} questions</b>
+                            </div>
+                            <div className='flex flex-wrap items-start justify-start gap-4'>
+                                {
+                                    userData.answers.map((answer, i) => {
+                                        if(answer.evaluation){
+                                            return <div>{i+1}: Correct </div>
+                                        }
+                                        return <div>{i+1}: Wrong </div>
+                                    })
+                                }
+                        </div>
+                        </div>
+                    </div>
+                    {/*footer*/}
+                    <div className="flex items-center justify-end p-2 border-t border-solid rounded-b border-slate-200">
+                    <button
+                        className="px-6 py-3 mb-1 mr-1 text-sm font-bold text-white uppercase transition-all duration-150 ease-linear rounded shadow outline-none bg-emerald-500 active:bg-emerald-600 hover:shadow-lg focus:outline-none"
+                        type="button"
+                        onClick={handleSubmit}
+                    >
+                        Submit
+                    </button>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div className="fixed inset-0 z-40 bg-black opacity-25"></div>
+
+        </>}
     </>);
 }
 
