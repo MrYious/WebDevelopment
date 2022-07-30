@@ -867,7 +867,7 @@ const QuizList = () => {
                             <b className='w-1/4'>Rank</b>
                             <b className='w-1/4'>Name</b>
                             <b className='w-1/4'>Points</b>
-                            <b className='w-1/4'>Question</b>
+                            <b className='w-1/4'>Correct</b>
                           </div>
                           {analytics.ranking.sort((a, b) => b.score - a.score).map((user, i) => {
                             return <>

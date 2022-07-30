@@ -4,15 +4,8 @@ import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 
 import { ArrowCircleRightIcon } from '@heroicons/react/solid';
 import Axios from '../service/Axios';
+import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { UserContext } from "../context/UserContext";
-
-//  end => save to database quiz submissions
-
-// TODO show user his score => redirect to home page
-
-// TODO admin view: results and analytics page
-
-
 
 const TheRoom = () => {
 
@@ -40,6 +33,9 @@ const TheRoom = () => {
         answers: [],
     }
     const navigate = useNavigate();
+
+    const [playTimer, setPlayTimer] = useState(true)
+
     const [showFinalResultModal, setShowFinalResultModal] = useState(false)
     const [currentNumber, setCurrentNumber] = useState(1)
     const [selectChoices, setSelectChoices] = useState(resetChoices)
@@ -514,6 +510,7 @@ const TheRoom = () => {
     const handleNext = () => {
         if(!checkAnswer){
             //CHECK ANSWER HERE
+            setPlayTimer(false)
             handleCheckAnswer()
             console.log("Answer", selectChoices)
             console.log("Correct Answer", quizData.questions[currentNumber - 1].answer[0])
@@ -525,6 +522,7 @@ const TheRoom = () => {
                 setCheckAnswer(false)
                 setError(false);
                 setMessage("");
+                setPlayTimer(true)
             }else{
                 // END
                 console.log("END");
@@ -708,10 +706,31 @@ const TheRoom = () => {
             </div>
             <div className="flex items-center justify-between w-full h-full gap-10 p-5 text-center ">
                 {/* LEFT */}
-                <div className="flex justify-center w-1/6 font-bold ">
-                    <div className='p-8 text-5xl text-gray-200 bg-green-700 rounded-full shadow-md w-fit shadow-green-800'>
-                        {quizData.questions[currentNumber-1].timeLimit.duration}
-                    </div>
+                <div className="flex justify-center w-1/6 text-5xl font-bold">
+                        {/* {quizData.questions[currentNumber-1].timeLimit.duration} */}
+                        {
+                            playTimer && <>
+                                <CountdownCircleTimer
+                                    isPlaying={playTimer}
+                                    duration={quizData.questions[currentNumber-1].timeLimit.duration}
+                                    colors={['#166534', '#F7B801','#991B1B', '#991B1B']}
+                                    trailColor='#D1D5DB'
+                                    strokeWidth={16}
+                                    updateInterval={1}
+                                    colorsTime={[quizData.questions[currentNumber-1].timeLimit.duration, quizData.questions[currentNumber-1].timeLimit.duration / 2, 0]}
+                                    size={130}
+                                    onComplete={() => {
+                                        // do your stuff here
+                                        setPlayTimer(false)
+                                        handleNext()
+                                        return { shouldRepeat: true}
+                                    }}
+                                >
+                                    {({ remainingTime }) => remainingTime}
+                                </CountdownCircleTimer>
+                            </>
+                        }
+                        
                 </div>
                 {/* CONTENT */}
                 <div className='flex flex-col items-center justify-start w-full h-full gap-10'>

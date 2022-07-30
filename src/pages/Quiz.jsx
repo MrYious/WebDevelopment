@@ -129,7 +129,7 @@ const Quiz = () => {
                                             </button>
                                         </div>
                                     :   // Preparation Room
-                                        <div className='flex flex-col gap-3 p-4 bg-gray-200 rounded-lg w-96'>
+                                        <div className='flex flex-col gap-3 p-4 bg-green-200 rounded-lg w-96'>
                                             <div className='py-2 text-xl font-bold' >
                                                 { quizData.title && quizData.title}
                                             </div>
